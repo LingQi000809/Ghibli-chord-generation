@@ -1,0 +1,9 @@
+from parse_chords import *
+t = Tune('Carrying You _.mid')
+t.update_chords()
+parts = t.score.getElementsByClass(stream.Part)
+mel_mms = parts[0].getElementsByClass(stream.Measure)
+mel1_voices = mel_mms[1].getElementsByClass(stream.Voice)
+mel1_ntoes = mel_mms[1].flat.notes
+base_mms = parts[1].getElementsByClass(stream.Measure)
+base5_notes = base_mms[5].flat.notes
