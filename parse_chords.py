@@ -28,10 +28,10 @@ class Tune:
         # e.g. (E: 8, G: 2.5, B: 1, F: 0.5)
         self.chords = []
 
-    def get_note_dur(self, note: note.Note, isBase: bool = False, isDownbeat: bool = False) -> float:
-        """ get a note's duration, considering added weights on downbeat and base notes"""
+    def get_note_dur(self, note, isBase: bool = False) -> float:
+        """ get a note(chord)'s duration, considering added weights on downbeat and base notes"""
         dur = min(note.quarterLength, self.chord_unit)
-        if isDownbeat or note.beat in self.downbeats:
+        if note.beat in self.downbeats:
             dur += 1
         if isBase:
             dur += 1
@@ -47,9 +47,10 @@ class Tune:
             # note can be either a note or a chord...
             if note.isChord:
                 # now the beat information is with the chord, but not the notes
-                isDownbeat = note.beat in self.downbeats
+                dur = self.get_note_dur(note, isBase=isBase)
                 for n in note.notes:
-                    dur = self.get_note_dur(n, isBase=isBase, isDownbeat=isDownbeat)
+                    print(n.name + ": " + str(dur))
+                    print(note.quarterLength)
                     note_counts.update({n.name: dur})
             else:
                 dur = self.get_note_dur(note, isBase=isBase)
@@ -84,6 +85,10 @@ class Tune:
 
 def main(args):
     midi_fname = args.mid
+    tune = Tune(midi_fname)
+    # tune.score.show()
+    tune.update_chords()
+    print(tune.chords)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
