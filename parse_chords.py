@@ -32,9 +32,9 @@ class Tune:
         """ get a note(chord)'s duration, considering added weights on downbeat and base notes"""
         dur = min(note.quarterLength, self.chord_unit)
         if note.beat in self.downbeats:
-            dur += 1
+            dur += min(1, dur)
         if isBase:
-            dur += 1
+            dur += min(1, dur)
         return dur
 
     def count_notes(self, mm: stream.Measure, isBase: bool = False) -> Counter:
@@ -49,12 +49,12 @@ class Tune:
                 # now the beat information is with the chord, but not the notes
                 dur = self.get_note_dur(note, isBase=isBase)
                 for n in note.notes:
-                    print(n.name + ": " + str(dur))
-                    print(note.quarterLength)
                     note_counts.update({n.name: dur})
+                    # print(n.name, dur)
             else:
                 dur = self.get_note_dur(note, isBase=isBase)
                 note_counts.update({note.name: dur})
+                # print(note.name, dur)
         return note_counts
 
     def update_chords(self):
@@ -70,9 +70,12 @@ class Tune:
         base_mms = base_part.getElementsByClass(stream.Measure)
 
         for i, mm in enumerate(melody_mms):
+            # print('measure ', i)
+            # print('melody: ')
             # count notes in each measure of the melody line
             melody_counter = self.count_notes(mm)
             # count notes in each measure of the base line
+            # print('base: ')
             base_counter = self.count_notes(base_mms[i], isBase=True)
             chord = melody_counter + base_counter
             chords.append(chord)
@@ -86,7 +89,7 @@ class Tune:
 def main(args):
     midi_fname = args.mid
     tune = Tune(midi_fname)
-    # tune.score.show()
+    tune.score.show()
     tune.update_chords()
     print(tune.chords)
 
