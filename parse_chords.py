@@ -28,17 +28,17 @@ class Tune:
         # e.g. (E: 8, G: 2.5, B: 1, F: 0.5)
         self.chords = []
 
-    def get_note_dur(self, note, isBase: bool = False) -> float:
-        """ get a note(chord)'s duration, considering added weights on downbeat and base notes"""
+    def get_note_dur(self, note, isBass: bool = False) -> float:
+        """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes"""
         dur = min(note.quarterLength, self.chord_unit)
         if note.beat in self.downbeats:
             dur += min(1, dur)
-        if isBase:
+        if isBass:
             dur += min(1, dur)
         return dur
 
-    def count_notes(self, mm: stream.Measure, isBase: bool = False) -> Counter:
-        """ count the duration for notes in a Measure (usually a chord unit in melody / base) """
+    def count_notes(self, mm: stream.Measure, isBass: bool = False) -> Counter:
+        """ count the duration for notes in a Measure (usually a chord unit in melody / bassline) """
         note_counts = Counter()
         mm_notes = mm.flat.notes
 
@@ -47,12 +47,12 @@ class Tune:
             # note can be either a note or a chord...
             if note.isChord:
                 # now the beat information is with the chord, but not the notes
-                dur = self.get_note_dur(note, isBase=isBase)
+                dur = self.get_note_dur(note, isBass=isBass)
                 for n in note.notes:
                     note_counts.update({n.name: dur})
                     # print(n.name, dur)
             else:
-                dur = self.get_note_dur(note, isBase=isBase)
+                dur = self.get_note_dur(note, isBass=isBass)
                 note_counts.update({note.name: dur})
                 # print(note.name, dur)
         return note_counts
@@ -61,23 +61,23 @@ class Tune:
         """ parse chord information by counting notes per chord unit """
         # elements in chords are note counters for each chord unit 
         chords = []
-        # score -> parts (melody line & base line)
+        # score -> parts (melody line & bass line)
         parts = self.score.getElementsByClass(stream.Part)
         melody_part = parts[0]
-        base_part = parts[1]
-        # parts -> measures (melody line & base line)
+        bass_part = parts[1]
+        # parts -> measures (melody line & bass line)
         melody_mms = melody_part.getElementsByClass(stream.Measure)
-        base_mms = base_part.getElementsByClass(stream.Measure)
+        bass_mms = bass_part.getElementsByClass(stream.Measure)
 
         for i, mm in enumerate(melody_mms):
             # print('measure ', i)
             # print('melody: ')
             # count notes in each measure of the melody line
             melody_counter = self.count_notes(mm)
-            # count notes in each measure of the base line
-            # print('base: ')
-            base_counter = self.count_notes(base_mms[i], isBase=True)
-            chord = melody_counter + base_counter
+            # count notes in each measure of the bass line
+            # print('bass: ')
+            bass_counter = self.count_notes(bass_mms[i], isBass=True)
+            chord = melody_counter + bass_counter
             chords.append(chord)
 
         self.chords = chords
@@ -89,7 +89,7 @@ class Tune:
 def main(args):
     midi_fname = args.mid
     tune = Tune(midi_fname)
-    tune.score.show()
+    # tune.score.show()
     tune.update_chords()
     print(tune.chords)
 
