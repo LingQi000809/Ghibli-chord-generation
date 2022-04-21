@@ -1,0 +1,107 @@
+%
+% File cmpu366.tex
+%
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{acl2021}
+\usepackage{times}
+\usepackage{CJKutf8}
+\usepackage{latexsym} 
+
+\renewcommand{\UrlFont}{\ttfamily\small}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B\textsc{ib}\TeX}
+
+\title{Chord Progression Generation in the style of Studio Ghilbi film music}
+
+\author{Ling Qi \\
+  Vassar College \\
+  \texttt{lqi@vassar.edu} \\\And
+  Jack Rogers \\
+  Vassar College\\
+  \texttt{jrogers@vassar.edu} \\\And
+  Gabor Ptacek \\
+  Vassar College\\
+  \texttt{gptacek@vassar.edu} \\}
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+This project aims to generate chord progressions in the style of Studio Ghibli film music using different computational models, such as n-gram model, hidden markov model (HMM), and recurrent neural network (RNN). The models are trained on a corpus of around 50 MIDI files for Ghibli music, with a background corpus of jazz music to support the small size of Ghibli dataset. For experimentation, we look at generating different lengths of chord sequences and how the inclusion of various corpora affect the output of different models. The generated chord sequences will be evaluated in terms of their similarity to Studio Ghibli soundtracks through metrics like cosine-based similarity and longest common chord subsequence. Additionally, we may also explore side topics such as how well Zipf’s Law approximates musical data.
+\end{abstract}
+
+\section{Introduction}
+\subsection{Studio Ghibli: Miyazaki Films and Hisaishi Soundtracks}
+Studio Ghibli is famous for its Japanese animation films like \emph{My Neighbour Totoro} (1988), \emph{Spirited Away} (2001), and \emph{Howl’s Moving Castle} (2004). Composer Joe Hisaishi has produced award-winning soundtracks for most Ghibli films. Although diverse in tone and theme, the soundtracks contain recurring musical features that heighten a whimsical, nostalgic, and pure feeling, which aligns very well with the narrative of Ghibli films. As huge fans of Studio Ghibli film music, we want to explore the possibility of generating its characteristic chord progressions computationally.
+\subsection{Chord and Chord Progression}
+To understand this study it is not necessary to have taken advanced music theory courses, but some fundamental knowledge of musical chords and chord progressions may be beneficial. Put simply, a chord is a combination of three or more pitches.\footnote{Definition of a chord found at: \url{https://www.musictheory.net/lessons/40}} The pitches that make up a chord give it a particular sound or feeling: some chords are inherently pleasing to the ear and can be associated with happy, pure, or uplifting emotions, while others contain more dissonance and may sound troubling, mysterious, or unpleasant. Chord progressions are sequences of chords that contribute to a piece’s overarching structure.\footnote{\url{https://www.musicgateway.com/blog/how-to/chord-music-theory}} Deciding what chords/chord progressions are appropriate for a piece is up to the composer, and this is what makes up the focus of our study. We plan to analyze the chord progressions that exist in Joe Hisaishi’s scores and extract his style of composition in order to generate similar chord progressions. 
+\subsection{Music and NLP Models}
+To conduct this study, we borrow techniques from the field of Natural Language Processing (NLP). While music is not (technically speaking) a language, other studies have demonstrated that computational models from NLP are effective in processing musical data and language data alike. Our models will be trained on sequences of tokens that represent chords. Because our goal is chord generation, we will use models that predict the next item in a sequence of chords. We plan to look at three computational models: an n-gram model, a Hidden Markov model (HMM), and a Recurrent Neural Network (RNN) model. N-gram models count the occurrences of specific sequences of tokens to estimate the next item. HMM may help to predict the next chord based on unobservable events, such as the harmonic function of a given chord. RNNs sequentially build a prediction based on the results of previous inputs. The results of each model will be evaluated using appropriate techniques also borrowed from NLP. 
+
+
+\section{Related Works}
+\subsection{Music Generation}
+Several researchers have explored the possibility of computational music generation through techniques commonly used in NLP. \citet{ponsford1999} investigated the use of probabilistic techniques from NLP on musical data. They used N-grams and Hidden Markov models to learn about significant characteristics of the music and confirmed that generating and inferring harmonic frameworks was possible with these characteristics. 
+
+A subset of previous research focuses on melody generation specifically, especially using recurrent neural networks (RNNs). \citet{wu2019} demonstrates how hierarchical RNNs can produce long-term structured melodies that are rated well by human evaluators. This study demonstrated the importance of long short-term memory (LSTM) models in order to “capture the global music structure and improve the quality of the generated music”. However, \citet{madaghiele2021} used similar methods but instead with a transformer model to achieve automatically generated jazz improvisation. They concluded that models using LSTMs were in general unable to capture the relationship between chords and melody. Since our focus is not to generate melody but instead only chords, we may find that an LSTM will suffice. 
+
+\subsection{Chord Generation}
+An important characteristic of film music from Studio Ghibli is the use of extended chords, so we decided to focus our research on chord and harmony generation. This is reflected in the remainder of our related works, which primarily focus on chord generation. In 2009, \citet{anders2009} explored the creation of a rule-based computational model that relied on music theory knowledge. In 2010, \citet{eigenfeldt2010} presented a method for harmonic progression generation using a variable-order Markov model, which generates the prediction based not only on the current state but also variable numbers of previous states. Later in 2012, they published another paper in collaboration with Evon Khor and Adam Burnett \citep{burnett2012}. It evaluated their Markov model with human participants who were instructed to determine if a musical sequence was human or computer composed. More recently, \citet{shukla2018} attempted to generate chord progressions with reinforcement learning. As a number of different models are used to generate chord progressions in past literature, it is of our interest to compare some of them, namely the n-gram model, Markov model, and recurrent neural networks (RNN), in our project to evaluate their efficacy on this specific problem. 
+
+\subsection{Stylized Chord Generation}
+Beyond general chord generation, our research focuses on the style of Joe Hisaishi’s composition for Studio Ghibli films. We want to see how we can generate chords that are not only musical but also stylized, so the following papers focus on jazz, a genre proximal to Hisaishi’s style. \citet{ogihara2008} studied using weighted N-gram models of chord sequences to create a chord profile for a composer. They compared a set of jazz composers to a corpus of jazz standards to determine their similarity. \citet{chen2020} proposed a chord jazzification process to generate realistic chord configurations in jazz styles using deep learning. 
+
+\section{Methods}
+\subsection{Corpus}
+MIDI is a standard file format for storing and processing musical data. Through libraries like \emph{Music21}, one can parse MIDI files and access symbolic information such as pitch, duration, and beat of a note in a measure. For this project, we input the piano reductions\footnote{Transcribed in a published piano scorebook: Hisaishi, Joe, 
+\begin{CJK}{UTF8}{min}こんにちわピアノ曲集/ピアノ・ソロ 宮崎駿 \& スタジオジブリ ベスト・アルバム\end{CJK} [Piano Music Score Collection of Joe Hisaishi and Studio Ghibli: Best Album],\begin{CJK}{UTF8}{min}ケイ・エム・ピー\end{CJK}, May, 2015.} of around 50 film cues composed by Joe Hisaishi for Studio Ghibli into Noteflight, a music notation software. The exported MIDI files constitute the main corpus. 
+
+Considering the small size of the Studio Ghibli music corpus, we also include a background corpus of MIDI files for Jazz music\footnote{We use the corpus transcribed by Doug McKenzie: \url{https://bushgrafts.com/midi/}}, since Ghibli music uses similar harmonic sequences and chord extensions as Jazz standards. 
+
+\subsection{Chord Representation}
+There are many parallels between music and natural languages \citep{ponsford1999}. For our project, chords are analogous to tokens. Correspondingly, segmentation of a tune into discrete units of chords is comparable to tokenization, and we “tokenize” each tune by measure. Each measure is represented by a counter of notes, where the count of each note depends on its accumulated duration in that measure. Additionally, if a note occurs on the bass line or on a downbeat, we would increment its count, since bassline and downbeats are generally the most important indicators for chords. Finally, we determine the chord per measure with the most frequent notes in the counter for that measure. It is worth experimenting with the number of notes to include in a chord, and the threshold for disregarding notes with insignificant weights from a chord. 
+	
+Chord simplification is considered analogous to lemmatization in NLP by previous studies like \citet{ogihara2008} and \citet{ponsford1999}. It removes unimportant differences between chords like tension notes. However, the present study omits this step because a prominent characteristic of Ghibli music is its use of tension notes to form extended chords. We want to preserve this stylized chord quality in the generated chord progressions.
+
+\subsection{Chord Normalization}
+A chord progression is a succession of chords. The most important musical feature of a chord progression is not the chords per se, but rather the intervals\footnote{An interval is the difference in pitch between two sounds.} between the chords. In other words, the chords should be encoded in terms of their harmonic function within the chord progression. To do this, some previous studies like \citet{whorley2007} and \citet{shukla2018} normalizes chords into scale degrees\footnote{A scale degree is the position of a particular note on a scale relative to the tonic.} or Roman numerals\footnote{Roman numeral is a way to represent scale degrees with additional notations of chord inversion and tension notes.}. However, since scale degrees lose the information about tension notes, and the Roman numerals get complicated to denote extended chords, the present study normalizes chords with \citet{ogihara2008}’s approach of transposing all chord sequences of interest into the same key. Accordingly, a chord is always associated with a particular harmonic function and has a fixed relationship with other chords as there is only one universal tonic\footnote{A tonic is a fundamental note of a key.}. 
+
+\subsection{N-gram}
+N-gram models are one of the most widely used methods for text analysis in NLP, involving contiguous sequences of n items from a corpus. N-grams were first proposed by \citet{shannon1951} and \citet{miller1950} and have been used in countless NLP papers. They also have been used for music generation by \citet{ponsford1999}, \citet{ogihara2008}, and others. We will use n-grams, where the items are chords in a chord sequence, to train a model to generate the next chord in a sequence. We hope to explore using variable length n-grams because interesting chord progressions can often range in length, and short sequences of chords (i.e, one or two chords in length) will provide us with significantly less insight on the composer’s style than longer sequences. 
+
+\subsection{Markov Models}
+Various Markov models, including the variable-order Markov model (VMM) and hidden Markov model (HMM) are also common methods used in NLP. They are generative models for sequential data, and for HMM the underlying Markov model is hidden. HMM was first proposed by \citet{baum1966} and VMM was first proposed by \citet{rissanen1983} with the title context trees, and both have been used for musical data generation research. \citet{ponsford1999} also used a HMM for their harmony generation paper, citing it as “more powerful than n-gram based models,” and \citet{pachet2002} used VMM as a part of the Continuator project to allow people to play alongside virtual musicians with their own styles. For HMM, we will have the observable event be the chords themselves and the hidden event be the harmonic function of the chord. A VMM model will be run with a chord’s context (past n chords) to predict and generate the subsequent chord.  
+
+\subsection{Recurrent Neural Network (RNN)}
+In the same way that there are dependencies in a sentence of words, there too exists dependencies in a sequence of chords. In both cases, preserving the implications of previous tokens is necessary to producing a logical output, so RNNs are an obvious choice for generating chord progressions. RNNs have been used in a great number of musical generation studies, one of the earliest examples being \citet{mozer1994} which focused on using neural networks to compose music by prediction. More recently, \citet{brunner2017} used LSTMs to improve upon the vanilla RNN model as a means of generating chords as part of their study. We borrow from this study a key concept behind preparing chordal data to be processed by the RNN: representing chords as IDs and then storing ID/chord pairs in a dictionary. This way the neural network can learn from sequences of chords in the same way it would learn from sentences. After the data is mapped this way, we will utilize the Keras Python library, specifically the Sequential class and LSTM contained within the module in order to train our model. Once the model is trained, we will predictively generate chords based on some starting input. 
+
+\subsection{Evaluation}
+Evaluation is a tricky and challenging topic for generative models due to their creative nature and the subjectiveness involved to assess the goodness of outputs. Most generative models in NLP rely on human evaluations. For example, \citet{pudaruth2014} built a lyrics generation model and asked people to guess if a lyric is an existing or a generated one. Such Turing tests\footnote{The Turing test follows an intuitive concept that evaluates whether a machine is able to exhibit behavior indistinguishable from humans.} are also used for music generation models, where people are instructed to identify music they consider to be composed by a human as opposed to a computer \citep{ariza2009, yang2020}. However, human evaluation is expensive in terms of time and labor. Our project poses even more challenges to find enough human evaluators, as it would require familiarity with the Studio Ghibli music style. Thus, human evaluation is out of scope for now, but it remains to be a meaningful future study to carry out.
+	
+There are a couple of computational evaluation metrics that we will perform, which assess the similarity between the Ghibli style and the generated output. \citet{cheng2008} proposed that the longest common subsequence (LCS) algorithm is desirable to measure chord sequence similarity because it preserves the order of chords. After the normalization of LCCS by the length of each chord sequence, the longer the LCCS is, the more similar two chord sequences are. Another metric is the cosine-based similarity used by \citet{ogihara2008}. To compare the similarity between two song collections, they represented each collection as a list of chord progressions, which are encoded into vector forms. By feeding the two lists of vectors into the cosine similarity equation, they obtained a score between 0 and 1. The higher the score is, the more similar the two collections are. For our project, we could treat the Ghibli corpus and the generated outputs as two collections. The similarity between them would signify how well we model the Ghibli style. However, it should be noted that similarity is not the only metric to determine the goodness of the generated outputs, since an exact copy of chord sequence from the corpus is not a creative one. 
+	
+Comparisons will be made between the baseline, N-gram, Markov, and RNN models. For the baseline model, we first assign a pool of candidate chords for every type of harmonic function, such as tonic, subdominant, and dominant. We also create a few templates for chord sequences with placeholders denoting harmonic functions. Then, to generate a chord sequence, we randomly choose a template and fill in each placeholder by a random candidate chord of that harmonic function. In this way, our baseline model outputs chord sequences that respect basic harmonic rules, while the randomness should prevent it from modeling the Ghibli style.
+
+\section{Results}
+TBA
+\section{Discussion}
+TBA
+
+\bibliographystyle{acl_natbib}
+\bibliography{acl2021} 
+
+%\appendix
+\end{document}
