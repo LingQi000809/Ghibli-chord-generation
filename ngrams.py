@@ -4,7 +4,7 @@ from typing import List
 from nltk import ngrams
 from collections import Counter
 
-def get_ngrams(chords,n):
+def get_ngrams(chords, n):
     """
     takes as input a list of chords represented by Counter objects and
     a value n for the n-gram (2 for bigram, 3 for trigram, etc) and
@@ -13,6 +13,16 @@ def get_ngrams(chords,n):
     n_grams = ngrams(chords, n)
     return n_grams       
 
+def get_examples(folder):
+    """
+    get_examples will loop through a folder with .txt files (list of list of characters
+    representing sequence of chords) for each piece and build a full n-gram Counter set 
+    with the following n values:
+    1,2,3,...
+
+
+    """
+    pass
 
 def main(args):
     ## get list of counters from file
