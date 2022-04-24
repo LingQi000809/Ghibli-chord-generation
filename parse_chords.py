@@ -158,6 +158,17 @@ def read_chord_file(fp):
         chords.append(set_chord)
     return chords 
 
+def read_chords(dir):
+    """Takes a directory of chord files and appends them into one list"""
+    for root, dirs, files in os.walk(dir, topdown=False):
+        result = []
+        for filename in files:
+            with open(os.path.join(root, filename)) as fp:
+                chords = read_chord_file(fp)
+                for chord in chords:
+                    result.append(chord)
+    return result
+
 def main(args):
     midi_fname = args.mid
     tune = Tune(midi_fname)
