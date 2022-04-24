@@ -45,9 +45,15 @@ class Tune:
         # i = interval.Interval(note.Note(starting_tonic), note.Note(to_tonic))
         # score.transpose(i, inPlace=True)
 
-    def get_chords(self):
-        # threshold & max num of notes
-        ...
+    def get_chords(self, min_threshold: float = 1.0, max_notes: int = None):
+        extracted_chords = []
+        for chord in self.chords:
+            # filter chords with weight less than min_threshold
+            chord_filtered = Counter({c: count for c, count in chord.items() if count >= min_threshold})
+            # extract the note symbols as a list ordered by weight, with the max_notes limit
+            chord_final = [c for c, count in chord_filtered.most_common(max_notes)]
+            extracted_chords.append(chord_final)
+        return extracted_chords
 
     def write(self):
         # write to file
@@ -107,16 +113,12 @@ class Tune:
 
         self.chords = chords
 
-    def simp_chords(self):
-        """ simplify chords: filter out non-chord tones in melody """
-        ...
-
 def main(args):
     midi_fname = args.mid
     tune = Tune(midi_fname)
     # tune.score.show()
     tune.update_chords()
-    print(tune.chords)
+    print(tune.get_chords(max_notes=5))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
