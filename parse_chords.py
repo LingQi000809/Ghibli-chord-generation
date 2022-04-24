@@ -2,13 +2,18 @@ import argparse
 import os
 
 from collections import Counter
-from music21 import converter, stream, note
+from music21 import *
 
 class Tune:
     """ class for a musical piece """
     def __init__(self, mid_fname: str, chord_unit: float = 4.0) -> None:
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
+        transposed_score = stream.Score(id='tScore')
+        for part in self.score:
+            flat_transposed_part = part.flatten()
+            self.normalize_score(flat_transposed_part)
+            
 
         # time signature
         # NOTE: we only deal with 1 time signature per tune for now
@@ -27,6 +32,26 @@ class Tune:
         # list of Counters of (note_str: duration_num), to be updated
         # e.g. (E: 8, G: 2.5, B: 1, F: 0.5)
         self.chords = []
+
+    def normalize_score(self, score: stream.Score, to_tonic: str = 'E-'):
+        """ normalize key to 3flats (Cm or EbM)
+            to_tonic: the string symbol for the tonic (in Major)
+        """
+        # keys = score.getElementsByClass(key.KeySignature)
+        # print(len(keys))
+        # for k in keys:
+        #     print(k)
+        # starting_tonic = keys[0].tonic.name
+        # i = interval.Interval(note.Note(starting_tonic), note.Note(to_tonic))
+        # score.transpose(i, inPlace=True)
+
+    def get_chords():
+        # threshold & max num of notes
+        ...
+
+    def write():
+        # write to file
+
 
     def get_note_dur(self, note, isBass: bool = False) -> float:
         """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes"""
