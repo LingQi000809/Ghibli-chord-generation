@@ -10,22 +10,10 @@ class Tune:
         self.tune_name, ext = os.path.splitext(os.path.basename(mid_fname))
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
-        # transposed_score = stream.Score(id='tScore')
-        # for part in self.score:
-        #     print(f"1. {part}")
-        #     num_measures = len(part)
-        #     for i in range(num_measures):
-        #         measure = part.measure(i)
-        #         print(f"measure:  {measure}")
-        #         for voice in measure:
-        #             print(f"2. {voice}")
-        #             self.normalize_score(voice)
-            # tpart = part.flatten()
-            # self.normalize_score(tpart)
-            # tpart.show()
-            # transposed_score.insert(i, tpart)
-        # self.score.show()
-
+        self.key = self.score[0][0].getElementsByClass(key.KeySignature)[0].tonic.name
+        print(f"first key: {self.key}")
+        self.normalize_score(self.score, self.key)
+        self.score.show()
 
         # time signature
         # NOTE: we only deal with 1 time signature per tune for now
@@ -45,16 +33,12 @@ class Tune:
         # e.g. (E: 8, G: 2.5, B: 1, F: 0.5)
         self.chords = []
 
-    def normalize_score(self, score: stream.Score, to_tonic: str = 'E-'):
+    def normalize_score(self, score: stream.Score, from_tonic: str, to_tonic: str = 'E-'):
         """ normalize key to 3flats (Cm or EbM)
+            from_tonic: the first key tonic str of the piece
             to_tonic: the string symbol for the tonic (in Major)
         """
-        keys = score.getElementsByClass(key.KeySignature)
-        print(len(keys))
-        for k in keys:
-            print(k)
-        starting_tonic = keys[0].tonic.name
-        i = interval.Interval(note.Note(starting_tonic), note.Note(to_tonic))
+        i = interval.Interval(note.Note(from_tonic), note.Note(to_tonic))
         score.transpose(i, inPlace=True)
 
     def get_chords(self, min_threshold: float = 1.0, max_notes: int = None) -> list:
