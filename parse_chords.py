@@ -60,14 +60,15 @@ class Tune:
         return extracted_chords
 
     def write(self, min_threshold: float = 1.0, max_notes: int = None):
-        """ write to file
+        """ write to file;
             suffix specifies the configuration of chords (min_threshold & max_notes)"""
-        # write to file
+        # build file path
         chords_dir = "chords"
         thresh_suffix = f"thresh{min_threshold}"
         maxnotes_suffix = f"max{max_notes}"
         name = ("-").join([self.tune_name, thresh_suffix, maxnotes_suffix])
 
+        # write to file
         chord_fpath = os.path.join(chords_dir, name)
         chords = self.get_chords(min_threshold=min_threshold, max_notes=max_notes)
         with open(chord_fpath, "w") as f:
