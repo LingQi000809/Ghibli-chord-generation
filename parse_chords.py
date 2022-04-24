@@ -45,13 +45,13 @@ class Tune:
         # i = interval.Interval(note.Note(starting_tonic), note.Note(to_tonic))
         # score.transpose(i, inPlace=True)
 
-    def get_chords():
+    def get_chords(self):
         # threshold & max num of notes
         ...
 
-    def write():
+    def write(self):
         # write to file
-
+        ...
 
     def get_note_dur(self, note, isBass: bool = False) -> float:
         """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes"""
