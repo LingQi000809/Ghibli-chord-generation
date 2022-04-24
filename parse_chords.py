@@ -7,6 +7,7 @@ from music21 import *
 class Tune:
     """ class for a musical piece """
     def __init__(self, mid_fname: str, chord_unit: float = 4.0) -> None:
+        self.tune_name, ext = os.path.splitext(os.path.basename(mid_fname))
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
         transposed_score = stream.Score(id='tScore')
@@ -45,7 +46,10 @@ class Tune:
         # i = interval.Interval(note.Note(starting_tonic), note.Note(to_tonic))
         # score.transpose(i, inPlace=True)
 
-    def get_chords(self, min_threshold: float = 1.0, max_notes: int = None):
+    def get_chords(self, min_threshold: float = 1.0, max_notes: int = None) -> list:
+        """ get chords from counters. Each chord is represented as a list of note symbols.
+            E.g. ['G', 'D', 'C', 'F#', 'E']
+            returns a list of lists """
         extracted_chords = []
         for chord in self.chords:
             # filter chords with weight less than min_threshold
@@ -55,9 +59,22 @@ class Tune:
             extracted_chords.append(chord_final)
         return extracted_chords
 
-    def write(self):
+    def write(self, min_threshold: float = 1.0, max_notes: int = None):
+        """ write to file
+            suffix specifies the configuration of chords (min_threshold & max_notes)"""
         # write to file
-        ...
+        chords_dir = "chords"
+        thresh_suffix = f"thresh{min_threshold}"
+        maxnotes_suffix = f"max{max_notes}"
+        name = ("-").join([self.tune_name, thresh_suffix, maxnotes_suffix])
+
+        chord_fpath = os.path.join(chords_dir, name)
+        chords = self.get_chords(min_threshold=min_threshold, max_notes=max_notes)
+        with open(chord_fpath, "w") as f:
+            for chord in chords:
+                for note in chord:
+                    f.write(f"{note} ")
+                f.write("\n")
 
     def get_note_dur(self, note, isBass: bool = False) -> float:
         """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes"""
@@ -118,7 +135,7 @@ def main(args):
     tune = Tune(midi_fname)
     # tune.score.show()
     tune.update_chords()
-    print(tune.get_chords(max_notes=5))
+    tune.write()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
