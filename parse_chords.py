@@ -10,10 +10,12 @@ class Tune:
         self.tune_name, ext = os.path.splitext(os.path.basename(mid_fname))
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
+        
+        # normalize the score to a universal key
         self.key = self.score[0][0].getElementsByClass(key.KeySignature)[0].tonic.name
         print(f"first key: {self.key}")
         self.normalize_score(self.score, self.key)
-        self.score.show()
+        # self.score.show()
 
         # time signature
         # NOTE: we only deal with 1 time signature per tune for now
@@ -45,14 +47,14 @@ class Tune:
         """ get chords from counters. Each chord is represented as a list of note symbols.
             E.g. ['G', 'D', 'C', 'F#', 'E']
             returns a list of lists """
-        extracted_chords = ['<s>']
+        extracted_chords = [['<s>']]
         for chord in self.chords:
             # filter chords with weight less than min_threshold
             chord_filtered = Counter({c: count for c, count in chord.items() if count >= min_threshold})
             # extract the note symbols as a list ordered by weight, with the max_notes limit
             chord_final = [c for c, count in chord_filtered.most_common(max_notes)]
             extracted_chords.append(chord_final)
-        extracted_chords.append('<e>')
+        extracted_chords.append(['<e>'])
         return extracted_chords
 
     def write(self, min_threshold: float = 1.0, max_notes: int = None):
@@ -159,6 +161,8 @@ def main(args):
     # tune.score.show()
     tune.update_chords()
     tune.write(max_notes=5)
+    with open("chords/max5/Family-thresh1.0") as f:
+        print(read_chord_file(f))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
