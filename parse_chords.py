@@ -1,8 +1,10 @@
 import argparse
+import matplotlib.pyplot as plt
 import os
 
 from collections import Counter
 from music21 import *
+
 
 class Tune:
     """ class for a musical piece """
@@ -169,13 +171,26 @@ def main(args):
     if midi_filepath:
         write_midi_to_chords(midi_filepath, max_notes=5)
         write_midi_to_chords(midi_filepath)
-    if midi_dir:
-        for f in os.listdir(midi_dir):
-            midi_filepath = os.path.join(midi_dir, f)
-            if os.path.isfile(midi_filepath):
-                write_midi_to_chords(midi_filepath, max_notes=5)
-                write_midi_to_chords(midi_filepath)
-    print(read_chord_dir("chords/max5"))
+    # if midi_dir:
+    #     for f in os.listdir(midi_dir):
+    #         midi_filepath = os.path.join(midi_dir, f)
+    #         if os.path.isfile(midi_filepath):
+    #             write_midi_to_chords(midi_filepath, max_notes=5)
+    #             write_midi_to_chords(midi_filepath)
+    chords = read_chord_dir("chords/max5")
+
+    count = Counter()
+    chords_str = []
+    for chord in chords:
+        c = ""
+        for note in sorted(list(chord)):
+            c += note
+        chords_str.append(c)
+        count[c] += 1
+    print(count)
+    plt.hist(chords_str)
+    plt.show()
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
