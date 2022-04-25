@@ -142,9 +142,8 @@ def read_chord_file(fp):
     """
     chords = []
     for chord in fp.readlines():
-        temp_chord = chord.strip()
-        set_chord = set(temp_chord.split(" "))
-        chords.append(set_chord)
+        strip_chord = chord.strip()
+        chords.append(strip_chord)
     return chords 
 
 def read_chord_dir(dir):

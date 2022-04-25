@@ -3,35 +3,36 @@ from tokenize import String
 from typing import List
 from nltk import ngrams
 from collections import Counter
-from parse_chords import read_chord_file
+from parse_chords import read_chord_dir, read_chord_file
 import os
 
 
-def get_examples(dir, n):
+def build_gram_counter(dir, n):
     """
-    FIX THIS 
-    get_examples will loop through a folder with .txt files (list of list of characters
-    representing sequence of chords) for each piece and build a full n-gram Counter set 
-    with the following n values:
-    2,3,4, and 5 to start  ...
+    takes in a directory to read from args.dir and 
+    turns it into a list of tuples of length n (n-grams).
+    then constructs a Counter object for these n-grams
     """
-    # read files from directory using jack's function
-    # pass that into ngrams here
-    n_counter = Counter(ngrams())
-
-    #return the counter
+    chords = read_chord_dir(dir)
+    chord_grams = ngrams(chords, n)
+    n_counter = Counter()
+    
+    for gram in chord_grams:
+        # will need to make this check more robust
+        if gram[0] == '<e>':
+            continue
+        n_counter[gram] += 1
+        
     return n_counter
 
 
+def naive_bayes(gram_counter):
+    pass
+
+
 def main(args):
-    chords = read_chord_file(args.chords)
-    print(chords)
-
-    n = 2
-
-    n_grams = ngrams(chords,n)
-    for grams in n_grams:
-        print(grams)
+    gram_counter = build_gram_counter("chords/max5", 2)
+    print(gram_counter)
 
 
 def dir_path(string):
@@ -47,13 +48,13 @@ if __name__ == "__main__":
         "--chords",
         "-c",
         type=argparse.FileType("r"),
-        help="txt file containing list of sets of string that represents chords",
+        help="filepath of a txt file containing list of sets of string that represents chords",
     )
     parser.add_argument(
         "--path",
         "-p",
         type=dir_path,
-        help="directory path for reading files",
+        help="directory path for reading chord txt files",
     )
     args = parser.parse_args()
 
