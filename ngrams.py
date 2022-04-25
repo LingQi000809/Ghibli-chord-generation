@@ -31,7 +31,7 @@ def naive_bayes(gram_counter):
 
 
 def main(args):
-    gram_counter = build_gram_counter("chords/max5", 2)
+    gram_counter = build_gram_counter(args.dir, 3)
     print(gram_counter)
 
 
@@ -51,8 +51,8 @@ if __name__ == "__main__":
         help="filepath of a txt file containing list of sets of string that represents chords",
     )
     parser.add_argument(
-        "--path",
-        "-p",
+        "--dir",
+        "-d",
         type=dir_path,
         help="directory path for reading chord txt files",
     )

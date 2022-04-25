@@ -190,6 +190,11 @@ def main(args):
     plt.hist(chords_str)
     plt.show()
     
+def dir_path(string):
+    if os.path.isdir(string):
+        return string
+    else:
+        raise NotADirectoryError(string)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -203,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dir",
         "-d",
-        type=str,
+        type=dir_path,
         help="filepath of a midi folder to parse each file in that folder into chords",
     )
     args = parser.parse_args()
