@@ -10,22 +10,11 @@ class Tune:
         self.tune_name, ext = os.path.splitext(os.path.basename(mid_fname))
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
-        # transposed_score = stream.Score(id='tScore')
-        # for part in self.score:
-        #     print(f"1. {part}")
-        #     num_measures = len(part)
-        #     for i in range(num_measures):
-        #         measure = part.measure(i)
-        #         print(f"measure:  {measure}")
-        #         for voice in measure:
-        #             print(f"2. {voice}")
-        #             self.normalize_score(voice)
-            # tpart = part.flatten()
-            # self.normalize_score(tpart)
-            # tpart.show()
-            # transposed_score.insert(i, tpart)
-        # self.score.show()
-
+        
+        # normalize the score to a universal key
+        self.key = self.score[0][0].getElementsByClass(key.KeySignature)[0].tonic.name
+        print(f"first key: {self.key}")
+        self.normalize_score(self.score, self.key)
 
         # time signature
         # NOTE: we only deal with 1 time signature per tune for now
@@ -45,30 +34,28 @@ class Tune:
         # e.g. (E: 8, G: 2.5, B: 1, F: 0.5)
         self.chords = []
 
-    def normalize_score(self, score: stream.Score, to_tonic: str = 'E-'):
+    def normalize_score(self, score: stream.Score, from_tonic: str, to_tonic: str = 'E-'):
         """ normalize key to 3flats (Cm or EbM)
+            from_tonic: the first key tonic str of the piece
             to_tonic: the string symbol for the tonic (in Major)
         """
-        keys = score.getElementsByClass(key.KeySignature)
-        print(len(keys))
-        for k in keys:
-            print(k)
-        starting_tonic = keys[0].tonic.name
-        i = interval.Interval(note.Note(starting_tonic), note.Note(to_tonic))
+        if from_tonic == to_tonic:
+            return
+        i = interval.Interval(note.Note(from_tonic), note.Note(to_tonic))
         score.transpose(i, inPlace=True)
 
     def get_chords(self, min_threshold: float = 1.0, max_notes: int = None) -> list:
         """ get chords from counters. Each chord is represented as a list of note symbols.
             E.g. ['G', 'D', 'C', 'F#', 'E']
             returns a list of lists """
-        extracted_chords = ['<s>']
+        extracted_chords = [['<s>']]
         for chord in self.chords:
             # filter chords with weight less than min_threshold
             chord_filtered = Counter({c: count for c, count in chord.items() if count >= min_threshold})
             # extract the note symbols as a list ordered by weight, with the max_notes limit
             chord_final = [c for c, count in chord_filtered.most_common(max_notes)]
             extracted_chords.append(chord_final)
-        extracted_chords.append('<e>')
+        extracted_chords.append(['<e>'])
         return extracted_chords
 
     def write(self, min_threshold: float = 1.0, max_notes: int = None):
@@ -158,12 +145,37 @@ def read_chord_file(fp):
         chords.append(set_chord)
     return chords 
 
-def main(args):
-    midi_fname = args.mid
-    tune = Tune(midi_fname)
+def read_chord_dir(dir):
+    """Takes a directory of chord files and appends them into one list"""
+    for root, dirs, files in os.walk(dir, topdown=False):
+        result = []
+        for filename in files:
+            with open(os.path.join(root, filename)) as fp:
+                chords = read_chord_file(fp)
+                for chord in chords:
+                    result.append(chord)
+    return result
+
+def write_midi_to_chords(fname: str, min_threshold: float = 1.0, max_notes: int = None):
+    tune = Tune(fname)
     # tune.score.show()
     tune.update_chords()
-    tune.write(max_notes=5)
+    tune.write(min_threshold=min_threshold, max_notes=max_notes)
+    print(f"written {fname} to chords with min_threshold: {min_threshold}; max_notes: {max_notes}")
+
+def main(args):
+    midi_filepath = args.mid
+    midi_dir = args.dir
+    if midi_filepath:
+        write_midi_to_chords(midi_filepath, max_notes=5)
+        write_midi_to_chords(midi_filepath)
+    if midi_dir:
+        for f in os.listdir(midi_dir):
+            midi_filepath = os.path.join(midi_dir, f)
+            if os.path.isfile(midi_filepath):
+                write_midi_to_chords(midi_filepath, max_notes=5)
+                write_midi_to_chords(midi_filepath)
+    print(read_chord_dir("chords/max5"))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -172,7 +184,13 @@ if __name__ == "__main__":
         "--mid",
         "-m",
         type=str,
-        help="name of a midi file to parse into chords",
+        help="filepath of a midi file to parse into chords",
+    )
+    parser.add_argument(
+        "--dir",
+        "-d",
+        type=str,
+        help="filepath of a midi folder to parse each file in that folder into chords",
     )
     args = parser.parse_args()
 
