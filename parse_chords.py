@@ -141,9 +141,10 @@ def read_chord_file(fp):
     and returns a list of sets of strings
     """
     chords = []
-    for chord in fp.readlines():
-        strip_chord = chord.strip()
-        chords.append(strip_chord)
+    for line in fp.readlines():
+        notes = sorted(line.strip().split())
+        c = " ".join(notes)
+        chords.append(c)
     return chords 
 
 def read_chord_dir(dir):
@@ -178,17 +179,10 @@ def main(args):
     #             write_midi_to_chords(midi_filepath)
     chords = read_chord_dir("chords/max5")
 
-    count = Counter()
-    chords_str = []
-    for chord in chords:
-        c = ""
-        for note in sorted(list(chord)):
-            c += note
-        chords_str.append(c)
-        count[c] += 1
+    count = Counter(chords)
     print(count)
-    plt.hist(chords_str)
-    plt.show()
+    # plt.hist(chords_str)
+    # plt.show()
     
 def dir_path(string):
     if os.path.isdir(string):
