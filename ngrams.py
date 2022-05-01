@@ -3,53 +3,43 @@ from tokenize import String
 from typing import List
 from nltk import ngrams
 from collections import Counter
-
-def get_ngrams(chords, n):
-    """
-    takes as input a list of chords represented by Counter objects and
-    a value n for the n-gram (2 for bigram, 3 for trigram, etc) and
-    returns a list of all the given n-grams in the document
-    """
-    n_grams = ngrams(chords, n)
-    return n_grams       
-
-def get_examples(folder):
-    """
-    get_examples will loop through a folder with .txt files (list of list of characters
-    representing sequence of chords) for each piece and build a full n-gram Counter set 
-    with the following n values:
-    2,3,4, and 5 to start  ...
+from parse_chords import read_chord_dir, read_chord_file
+import os
 
 
+def build_gram_counter(dir, n):
     """
+    takes in a directory to read from args.dir and 
+    turns it into a list of tuples of length n (n-grams).
+    then constructs a Counter object for these n-grams
+    """
+    chords = read_chord_dir(dir)
+    chord_grams = ngrams(chords, n)
+    n_counter = Counter()
+    
+    for gram in chord_grams:
+        # will need to make this check more robust
+        if gram[0] == '<e>':
+            continue
+        n_counter[gram] += 1
+        
+    return n_counter
+
+
+def naive_bayes(gram_counter):
     pass
 
+
 def main(args):
-    ## get list of counters from file
-    #chords = [['d','b'],['g','d','c','f#','e'],['f','c','a'],['c','a','e-','f'],['c','d','a','f'],['c','c#','g#','f']]
-    #n = 2
-    
+    gram_counter = build_gram_counter(args.dir, 3)
+    print(gram_counter)
 
-    #print(args.chords.readlines())
 
-    chords = []
-    for chord in args.chords.readlines():
-        temp_chord = chord.strip()
-        list_chord = temp_chord.split(" ")
-        chords.append(list_chord)
-    print(chords)
-    
-
-    #with open(args.chords, "r") as fp:
-    #    lines = fp.readlines()
-    #    print(lines)
-    
-    #n_grams = ngrams(chords,n)
-    #print(type(n_grams))
-    #for grams in n_grams:
-    #    print(grams)
-
-    
+def dir_path(string):
+    if os.path.isdir(string):
+        return string
+    else:
+        raise NotADirectoryError(string)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -58,7 +48,13 @@ if __name__ == "__main__":
         "--chords",
         "-c",
         type=argparse.FileType("r"),
-        help="list of Counter objects that represents chords",
+        help="filepath of a txt file containing list of sets of string that represents chords",
+    )
+    parser.add_argument(
+        "--dir",
+        "-d",
+        type=dir_path,
+        help="directory path for reading chord txt files",
     )
     args = parser.parse_args()
 
