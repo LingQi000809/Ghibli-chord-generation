@@ -76,8 +76,8 @@ class NgramModel(object):
         :return: generated text
         """
         n = self.n
-        context_queue = ['C E- G', 'A C D F#']
-        
+        context_queue = ['<s>', 'C E- G']
+        beginning = context_queue.copy()
         result = []
         for _ in range(token_count):
             obj = self.random_token(tuple(context_queue))
@@ -88,7 +88,8 @@ class NgramModel(object):
                     context_queue = (n - 1) * ['<s>']
                 else:
                     context_queue.append(obj)
-        return result
+        print(beginning + result)
+        return beginning + result
 
 def build_gram_counter(dir, n):
     """
