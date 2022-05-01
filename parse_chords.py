@@ -60,27 +60,6 @@ class Tune:
         extracted_chords.append(['<e>'])
         return extracted_chords
 
-    def write(self, min_threshold: float = 1.0, max_notes: int = None):
-        """ write to file;
-            suffix specifies the configuration of chords (min_threshold & max_notes)"""
-        # build file path
-        chords_dir = "chords"
-        maxnotes_dir = f"max{max_notes}"
-        thresh_suffix = f"thresh{min_threshold}"
-        name = ("-").join([self.tune_name, thresh_suffix])
-
-        f_dir = os.path.join(chords_dir, maxnotes_dir)
-        if not os.path.exists(f_dir):
-                os.mkdir(f_dir)
-        # write to file
-        chord_fpath = os.path.join(f_dir, name)
-        chords = self.get_chords(min_threshold=min_threshold, max_notes=max_notes)
-        with open(chord_fpath, "w") as f:
-            for chord in chords:
-                for note in chord:
-                    f.write(f"{note} ")
-                f.write("\n")
-
     def get_note_dur(self, note, isBass: bool = False) -> float:
         """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes"""
         dur = min(note.quarterLength, self.chord_unit)
@@ -134,6 +113,27 @@ class Tune:
             chords.append(chord)
 
         self.chords = chords
+
+    def write(self, min_threshold: float = 1.0, max_notes: int = None):
+        """ write to file;
+            suffix specifies the configuration of chords (min_threshold & max_notes)"""
+        # build file path
+        chords_dir = "chords"
+        maxnotes_dir = f"max{max_notes}"
+        thresh_suffix = f"thresh{min_threshold}"
+        name = ("-").join([self.tune_name, thresh_suffix])
+
+        f_dir = os.path.join(chords_dir, maxnotes_dir)
+        if not os.path.exists(f_dir):
+                os.mkdir(f_dir)
+        # write to file
+        chord_fpath = os.path.join(f_dir, name)
+        chords = self.get_chords(min_threshold=min_threshold, max_notes=max_notes)
+        with open(chord_fpath, "w") as f:
+            for chord in chords:
+                for note in chord:
+                    f.write(f"{note} ")
+                f.write("\n")
 
 def read_chord_file(fp):
     """
