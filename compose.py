@@ -14,7 +14,10 @@ def compose(seq: list, show_score: bool = True):
         c = chord.Chord(chord_str.split(), duration=duration.Duration(2.0))
         print(chord_str)
         if len(chord_str.split()) >= 3:
-            inversion = random.choices([0, 1, 2], weights=[60, 30, 10])[0]
+            if c.containsTriad():
+                inversion = random.choices([0, 1, 2], weights=[60, 30, 10])[0]
+            else:
+                inversion = 0
             c.inversion(inversion)
         composition.append(c)
     composition.show()

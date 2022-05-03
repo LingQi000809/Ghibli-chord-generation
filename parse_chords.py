@@ -8,7 +8,10 @@ from music21 import *
 
 class Tune:
     """ class for a musical piece """
-    def __init__(self, mid_fname: str) -> None:
+    def __init__(self, mid_fname: str, chord_per_measure: bool = False) -> None:
+        # the chord_per_measure flag disgards the possible harmonic rhythm of 2+ chords per measure
+        self.chord_per_measure = chord_per_measure
+
         self.tune_name, ext = os.path.splitext(os.path.basename(mid_fname))
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
@@ -59,7 +62,7 @@ class Tune:
         # variables with a unit of quarterLength all start with 0
         # chord_unit: the unit of a chord in quarterlength
         chord_unit = ts.beatCount * ts.beatDuration.quarterLength
-        if ts.numerator > 2 and ts.beatCount % 2 == 0:
+        if not self.chord_per_measure and ts.numerator > 2 and ts.beatCount % 2 == 0:
             chord_unit /= 2
         # end tick of the first chord_unit in the measure
         end_unit1_tick = chord_unit 
@@ -101,7 +104,7 @@ class Tune:
         # beatCount: how many beats are there in a measure (2 for 6/8; 4 for 4/4; 3 for 3/4)
         downbeats = [1.0]
         counters = [Counter()]
-        if ts.numerator > 2 and ts.beatCount % 2 == 0:
+        if not self.chord_per_measure and ts.numerator > 2 and ts.beatCount % 2 == 0:
             downbeats.append(ts.beatCount / 2 + 1)
             counters.append(Counter())
 
