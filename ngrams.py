@@ -8,6 +8,8 @@ from parse_chords import read_chord_dir, read_chord_file
 import os
 import random 
 from compose import compose
+
+
 class NgramModel(object):
 
     def __init__(self, n):
@@ -22,10 +24,19 @@ class NgramModel(object):
     def update(self, dir) -> None:
         """
         Updates Language Model
-        :param sentence: input text
+        dir: a chord directory
         """
         n = self.n
-        ngrams = get_ngrams(n, read_chord_dir(dir))
+
+        # add in start symbols to match n
+        chord_list = read_chord_dir(dir)
+        new_chord_list = []
+        for c in chord_list:
+            if c == '<s>':
+                new_chord_list.extend(['<s>'] * (n-1))
+            new_chord_list.append(c)
+
+        ngrams = get_ngrams(n, new_chord_list)
         for ngram in ngrams:
             if ngram in self.ngram_counter:
                 self.ngram_counter[ngram] += 1.0
@@ -70,25 +81,29 @@ class NgramModel(object):
             if summ > r:
                 return token
     
-    def generate_text(self, token_count: int):
+    def generate(self, seq_len: int):
         """
-        :param token_count: number of words to be produced
-        :return: generated text
+        :param seq_len: number of chords to be produced
+        :return: generated chord sequence
         """
         n = self.n
-        context_queue = ['<s>', 'C E- G']
+        context_queue = ['<s>'] * (n-1)
         beginning = context_queue.copy()
         result = []
-        for _ in range(token_count):
-            obj = self.random_token(tuple(context_queue))
+        for i in range(seq_len + n):
+            obj = ""
+            while obj == "":
+                obj = self.random_token(tuple(context_queue))
+            if obj == "<e>":
+                break
             result.append(obj)
             if n > 1:
                 context_queue.pop(0)
-                if obj == '.':
-                    context_queue = (n - 1) * ['<s>']
-                else:
-                    context_queue.append(obj)
-        print(beginning + result)
+                # if obj == '.':
+                #     context_queue = (n - 1) * ['<s>']
+                # else:
+                context_queue.append(obj)
+        # print(beginning + result)
         return beginning + result
 
 def build_gram_counter(dir, n):
@@ -128,14 +143,15 @@ def predict(gram, counts : Counter):
     denom = counts.get(i_minus_1_gram)
     return numer/denom 
 
-    
-
 def main(args):
-    m = NgramModel(3)
+    m = NgramModel(6)
     m.update(args.dir)
-    
-    text = m.generate_text(10)
-    compose(text)
+    # for x in m.ngram_counter:
+    #     if x[0][0] == '<s>':
+    #         print(x)
+    # print(m.ngram_counter)
+    seq = m.generate(15)
+    compose(seq)
 
 
 def dir_path(string):

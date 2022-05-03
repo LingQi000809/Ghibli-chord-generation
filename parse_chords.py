@@ -249,10 +249,13 @@ def main(args):
     #             write_midi_to_chords(midi_filepath, max_notes=5)
     #             write_midi_to_chords(midi_filepath)
     chords = read_chord_dir("chords/max5")
-    count = Counter(chords)
-    print(count)
-    plt.hist(count.keys())
-    plt.show()
+    print(chords)
+    # print(len(chords))
+    # print(len(Counter))
+    # count = Counter(chords)
+    # print(count)
+    # plt.hist(count.keys())
+    # plt.show()
     
 def dir_path(string):
     if os.path.isdir(string):
