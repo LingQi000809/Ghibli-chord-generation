@@ -7,10 +7,16 @@ def compose(seq: list, show_score: bool = True):
     seq: list[str], a list of strings representing chords.
     show_score: bool, if set to True, show the score (need MuseScore installed) """
     composition = stream.Stream()
-    for chord_str in seq:
+    chord_streams = []
+    for i, chord_str in enumerate(seq):
         if chord_str.startswith('<'):
             continue
-        # TODO: varying duration?
+        if i > 0 and chord_str == seq[i-1]:
+            prev_chord_dur = chord_streams[-1].duration.quarterLength
+            if prev_chord_dur < 4:
+                chord_streams[-1].duration = duration.Duration(prev_chord_dur + 2.0)
+            continue
+
         c = chord.Chord(chord_str.split(), duration=duration.Duration(2.0))
         print(chord_str)
         if len(chord_str.split()) >= 3:
@@ -19,5 +25,7 @@ def compose(seq: list, show_score: bool = True):
             else:
                 inversion = 0
             c.inversion(inversion)
+        chord_streams.append(c)
+    for c in chord_streams:
         composition.append(c)
     composition.show()
