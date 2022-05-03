@@ -8,7 +8,7 @@ from music21 import *
 
 class Tune:
     """ class for a musical piece """
-    def __init__(self, mid_fname: str, chord_unit: float = 4.0) -> None:
+    def __init__(self, mid_fname: str) -> None:
         self.tune_name, ext = os.path.splitext(os.path.basename(mid_fname))
         # convert the midi file into music21 stream.Score object
         self.score = converter.parse(mid_fname, format='midi', quarterLengthDivisors=[12,16])
@@ -23,14 +23,6 @@ class Tune:
         self.mm_beats = self.score.getTimeSignatures()[0].barDuration.quarterLength
         # unit in terms of quarter note to evaluate as a chord
         # (e.g. default to 4.0 -> evaluate chords per measure in 4/4 times)
-        # NOTE: currently not used. treating each measure as 1 chord
-        # TODO: generalize to any time signature
-        self.chord_unit = chord_unit
-        # first beat in each chord_unit
-        self.downbeats = []
-        for i in range(int(self.mm_beats)):
-            if i % self.chord_unit == 0:
-                self.downbeats.append(i + 1)
 
         # list of Counters of (note_str: duration_num), to be updated
         # e.g. (E: 8, G: 2.5, B: 1, F: 0.5)
@@ -60,34 +52,87 @@ class Tune:
         extracted_chords.append(['<e>'])
         return extracted_chords
 
-    def get_note_dur(self, note, isBass: bool = False) -> float:
-        """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes"""
-        dur = min(note.quarterLength, self.chord_unit)
-        if note.beat in self.downbeats:
-            dur += min(1, dur)
-        if isBass:
-            dur += min(1, dur)
-        return dur
+    def get_note_dur(self, note, downbeats: list, ts: meter.TimeSignature, isBass: bool = False) -> list:
+        """ get a note(chord)'s duration, considering added weights on downbeat and bassline notes.
+            chord_unit: float, the max duration for a note (length of a chord_unit: a measure / a half measure).
+            returns list[float]: if a note spans into the second half measure, the second element in the list is its dur to add to the second half """
+        # variables with a unit of quarterLength all start with 0
+        # chord_unit: the unit of a chord in quarterlength
+        chord_unit = ts.beatCount * ts.beatDuration.quarterLength
+        if ts.numerator > 2 and ts.beatCount % 2 == 0:
+            chord_unit /= 2
+        # end tick of the first chord_unit in the measure
+        end_unit1_tick = chord_unit 
+        # end tick of the second chord_unit in the measure, if it exists
+        end_unit2_tick = chord_unit * 2 
+        # the starting tick (position) of note in quarterlength
+        start_tick = (note.beat - 1) * ts.beatDuration.quarterLength
+        
+        isDownbeat = note.beat in downbeats
 
-    def count_notes(self, mm: stream.Measure, isBass: bool = False) -> Counter:
-        """ count the duration for notes in a Measure (usually a chord unit in melody / bassline) """
-        note_counts = Counter()
+        # if the chord unit is the entire measure: the note duration can't exceed the remaining duration in the measure from its starting beat
+        if len(downbeats) == 1:
+            durations = [min(note.quarterLength, end_unit1_tick - start_tick)]
+        # if the note is in the second half measure: the note duration can't exceed the remaining duration in the measure from its starting beat
+        elif note.beat >= downbeats[1]:
+            durations = [min(note.quarterLength, end_unit2_tick - start_tick)]
+        # if the note is in the first half measure: the note duration can't exceed the chord unit; record carry-over
+        else:
+            dur1 = min(note.quarterLength, end_unit1_tick - start_tick)
+            # dur2: carry-over to the next half measure
+            dur2 = start_tick + note.quarterLength - end_unit1_tick
+            if dur2 <= 0:
+                durations = [dur1]
+            else: 
+                durations = [dur1, dur2]
+                # print(note, end_unit1_tick, end_unit2_tick, start_tick, note.quarterLength, dur2)
+         
+        for i, dur in enumerate(durations):
+            if isDownbeat or i == 1:
+                durations[i] += min(1, dur)
+            if isBass:
+                durations[i] += min(1, dur)
+        return durations
+
+    def count_notes(self, mm: stream.Measure, ts: meter.TimeSignature, isBass: bool = False) -> list:
+        """ count the duration for notes in a Measure (usually a chord unit in melody / bassline). 
+            returns a list of Counters - each counter is a chord.
+            If the beatCount is even in this measure, divide it in half and find chord for each half """
+        # beatCount: how many beats are there in a measure (2 for 6/8; 4 for 4/4; 3 for 3/4)
+        downbeats = [1.0]
+        counters = [Counter()]
+        if ts.numerator > 2 and ts.beatCount % 2 == 0:
+            downbeats.append(ts.beatCount / 2 + 1)
+            counters.append(Counter())
+
+        # print(downbeats)
+
         mm_notes = mm.flat.notes
-
         # record each note's duration / strength
         for note in mm_notes:
+            # print(note.beat)
+            # add notes to the appropriate counter
+            note_counts = counters[0]
+            if len(downbeats) > 1 and note.beat >= downbeats[1]:
+                note_counts = counters[1]
+
             # note can be either a note or a chord...
             if note.isChord:
                 # now the beat information is with the chord, but not the notes
-                dur = self.get_note_dur(note, isBass=isBass)
+                durations = self.get_note_dur(note, downbeats, ts, isBass=isBass)
                 for n in note.notes:
-                    note_counts.update({n.name: dur})
-                    # print(n.name, dur)
+                    note_counts.update({n.name: durations[0]})
+                    if len(durations) > 1:
+                        counters[1].update({n.name: durations[1]})
+                    # print(n.name, durations)
             else:
-                dur = self.get_note_dur(note, isBass=isBass)
-                note_counts.update({note.name: dur})
-                # print(note.name, dur)
-        return note_counts
+                durations = self.get_note_dur(note, downbeats, ts, isBass=isBass)
+                note_counts.update({note.name: durations[0]})
+                if len(durations) > 1:
+                    counters[1].update({note.name: durations[1]})
+                # print(note.name, durations)
+        # print(counters)
+        return counters
 
     def update_chords(self):
         """ parse chord information by counting notes per chord unit """
@@ -101,16 +146,32 @@ class Tune:
         melody_mms = melody_part.getElementsByClass(stream.Measure)
         bass_mms = bass_part.getElementsByClass(stream.Measure)
 
-        for i, mm in enumerate(melody_mms):
-            # print('measure ', i)
-            # print('melody: ')
-            # count notes in each measure of the melody line
-            melody_counter = self.count_notes(mm)
-            # count notes in each measure of the bass line
-            # print('bass: ')
-            bass_counter = self.count_notes(bass_mms[i], isBass=True)
-            chord = melody_counter + bass_counter
-            chords.append(chord)
+        num_mms = max(len(melody_mms), len(bass_mms))
+
+        timesig = melody_mms.measure(1).timeSignature
+        for i in range(num_mms):
+            chord_counters = []
+
+            hasMelody = i < len(melody_mms)
+            hasBass = i < len(bass_mms)
+
+            if hasMelody:
+                mm = melody_mms[i]
+                timesig = mm.timeSignature or timesig
+                # count notes in each measure of the melody line
+                chord_counters = self.count_notes(mm, timesig)
+            if hasBass:
+                bm = bass_mms[i]
+                timesig = bm.timeSignature or timesig
+                # count notes in each measure of the bass line
+                bass_counters = self.count_notes(bm, timesig, isBass=True)
+                if chord_counters:
+                    for i, c in enumerate(bass_counters):
+                        chord_counters[i] += c
+                else:
+                    chord_counters = bass_counters
+            
+            chords += chord_counters
 
         self.chords = chords
 
@@ -159,18 +220,25 @@ def read_chord_dir(dir):
     return result
 
 def write_midi_to_chords(fname: str, min_threshold: float = 1.0, max_notes: int = None):
+    print(f"writing {fname} to chords with min_threshold: {min_threshold}; max_notes: {max_notes}")
     tune = Tune(fname)
     # tune.score.show()
     tune.update_chords()
     tune.write(min_threshold=min_threshold, max_notes=max_notes)
-    print(f"written {fname} to chords with min_threshold: {min_threshold}; max_notes: {max_notes}")
 
 def main(args):
     midi_filepath = args.mid
     midi_dir = args.dir
-    if midi_filepath:
-        write_midi_to_chords(midi_filepath, max_notes=5)
-        write_midi_to_chords(midi_filepath)
+
+    # t = Tune(midi_filepath)
+    # # t.score.show()
+    # t.update_chords()
+    # print(t.chords)
+    # write_midi_to_chords(midi_filepath, max_notes=5)
+
+    # if midi_filepath:
+    #     write_midi_to_chords(midi_filepath, max_notes=5)
+    #     write_midi_to_chords(midi_filepath)
     # if midi_dir:
     #     for f in os.listdir(midi_dir):
     #         midi_filepath = os.path.join(midi_dir, f)
@@ -178,11 +246,10 @@ def main(args):
     #             write_midi_to_chords(midi_filepath, max_notes=5)
     #             write_midi_to_chords(midi_filepath)
     chords = read_chord_dir("chords/max5")
-
     count = Counter(chords)
     print(count)
-    # plt.hist(chords_str)
-    # plt.show()
+    plt.hist(count.keys())
+    plt.show()
     
 def dir_path(string):
     if os.path.isdir(string):
