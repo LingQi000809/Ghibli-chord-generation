@@ -12,145 +12,152 @@ from compose import compose
 
 class NgramModel(object):
 
-    def __init__(self, n):
+    def __init__(self, n: int):
+        if n < 1:
+            raise ValueError("N for an Ngram model must be greater than 0.")
         self.n = n
-
-        # dictionary that keeps list of candidate words given context
+        # key: context (previous chords); value: a list of candidate next chord;
+        # example: {("C E G", "A D F"): ["C E G", "B D G", ...]}
         self.context = {}
+        # counter for all the ngrams in the tuple form: ((chord_1, chord_2, ..., chord_n-1), chord_n)
+        self.ngram_counter = Counter()
+        # mapping from a candid
+    
+    def get_ngrams(self, data_chords: list) -> list:
+        """
+        data_chords: all chords from the training data (in sequential order, with proper start symbols added);
+        returns a list of ngrams in the tuple form: ((chord_1, chord_2, ..., chord_n-1), chord_n)
+        """
+        l = [(
+            tuple([data_chords[i-p-1] for p in reversed(range(self.n-1))]), 
+            data_chords[i]
+            ) for i in range(self.n-1, len(data_chords))]
+        return l
 
-        # keeps track of how many times ngram has appeared in the text before
-        self.ngram_counter = {}
-
-    def update(self, dir) -> None:
+    def update(self, chord_list: list) -> None:
         """
         Updates Language Model
-        dir: a chord directory
+        chord_list: a list of chords (strings) from the data, in sequential order
         """
         n = self.n
 
         # add in start symbols to match n
-        chord_list = read_chord_dir(dir)
         new_chord_list = []
         for c in chord_list:
             if c == '<s>':
                 new_chord_list.extend(['<s>'] * (n-1))
             new_chord_list.append(c)
 
-        ngrams = get_ngrams(n, new_chord_list)
-        for ngram in ngrams:
-            if ngram in self.ngram_counter:
-                self.ngram_counter[ngram] += 1.0
-            else:
-                self.ngram_counter[ngram] = 1.0
+        # get ngrams
+        ngrams = self.get_ngrams(new_chord_list)
+        # update the ngram_counter with these ngrams
+        self.ngram_counter += Counter(ngrams)
 
+        # update the context
+        for ngram in ngrams:
             prev_words, target_word = ngram
             if prev_words in self.context:
                 self.context[prev_words].append(target_word)
             else:
                 self.context[prev_words] = [target_word]
 
-    def prob(self, context, token):
+    def prob(self, context: tuple, next_chord: str):
         """
-        Calculates probability of a candidate token to be generated given a context
-        :return: conditional probability
+        Calculates probability of a candidate chord to be generated given a context;
+        Returns conditional probability
         """
         try:
-            count_of_token = self.ngram_counter[(context, token)]
+            count_of_chord = self.ngram_counter[(context, next_chord)]
             count_of_context = float(len(self.context[context]))
-            result = count_of_token / count_of_context
-
+            result = count_of_chord / count_of_context
         except KeyError:
             result = 0.0
         return result
     
-    def random_token(self, context):
-        """
-        Given a context we "semi-randomly" select the next word to append in a sequence
-        :param context:
-        :return:
-        """
-        r = random.random()
-        map_to_probs = {}
-        token_of_interest = self.context[context]
-        for token in token_of_interest:
-            map_to_probs[token] = self.prob(context, token)
+    def get_candidates(self, context: tuple) -> dict:
+        """ get a mapping from candidate chord to its probability as the next chord given the context """
+        candidate_probs = {}
+        candidate_chords = self.context[context]
+        for c in candidate_chords:
+            candidate_probs[c] = self.prob(context, c)
+        print(f"context: {context}\ncandidates: {candidate_probs}")
+        return candidate_probs
 
-        summ = 0
-        for token in sorted(map_to_probs):
-            summ += map_to_probs[token]
-            if summ > r:
-                return token
-    
-    def generate(self, seq_len: int):
+    def gen_chord_semirandom(self, context: tuple):
         """
-        :param seq_len: number of chords to be produced
-        :return: generated chord sequence
+        Given a context we "semi-randomly" select the next chord to append in a sequence
+        """
+        # a random r between 0 and 1
+        r = random.random()
+        # get all candidate chords
+        candidate_probs = self.get_candidates(context)
+
+        # accumulate probability from candidate chords by order form highest prob to lowest
+        # until greater than the random r
+        # semi-random -> next chord
+        summ = 0
+        for candidate_chord in sorted(candidate_probs):
+            summ +=candidate_probs[candidate_chord]
+            if summ > r:
+                return candidate_chord
+
+    def gen_chord_by_prob(self, context: tuple):
+        """
+        Given a context we randomly select the next chord by probability
+        """
+        # get all candidate chords
+        candidates = self.get_candidates(context)
+        candidate_chords = list(candidates.keys())
+        candidate_probs = list(candidates.values())
+        # print(candidates, candidate_chords, candidate_probs)
+        return random.choices(candidate_chords, weights=candidate_probs, k=1)[0]
+    
+    def generate(self, seq_len: int, method: str = "prob"):
+        """
+        seq_len: number of chords to be produced until encountering ending;
+        method: prob - randomly generate by probability; 
+                semi - semi-randomly generate with a random threshold for probability;
+        Returns the generated chord sequence
         """
         n = self.n
+        # context_queue: a window of context chords for the next chord to generate
+        # start with context of all start symbols
         context_queue = ['<s>'] * (n-1)
-        beginning = context_queue.copy()
+        # result keeps track of the final sequence
         result = []
         for i in range(seq_len + n):
-            obj = ""
-            while obj == "":
-                obj = self.random_token(tuple(context_queue))
-            if obj == "<e>":
+            # generate a new chord with the specified method
+            if method == "prob":
+                new_chord = self.gen_chord_by_prob(tuple(context_queue))
+            elif method == "semi":
+                new_chord = self.gen_chord_semirandom(tuple(context_queue))
+            else:
+                raise ValueError("Unrecognized method for generating chords with an Ngrams model. Currently supported methods are: 'prob', 'semi'.")
+            
+            # append new chord to sequence
+            result.append(new_chord)
+
+            # once we reach an ending, the model should not proceed (no chord after ending)
+            if new_chord == "<e>":
                 break
-            result.append(obj)
-            if n > 1:
-                context_queue.pop(0)
-                # if obj == '.':
-                #     context_queue = (n - 1) * ['<s>']
-                # else:
-                context_queue.append(obj)
-        # print(beginning + result)
-        return beginning + result
 
-def build_gram_counter(dir, n):
-    """
-    takes in a directory to read from args.dir and 
-    turns it into a list of tuples of length n (n-grams).
-    then constructs a Counter object for these n-grams
-    """
-    chords = read_chord_dir(dir)
-    chord_grams = ngrams(chords, n)
-
-    n_counter = Counter()
-    
-    for gram in chord_grams:
-        # will need to make this check more robust
-        if gram[0] == '<e>':
-            continue
-        n_counter[gram] += 1
-        
-    return n_counter
-
-def get_ngrams(n: int, tokens: list) -> list:
-    """
-    :param n: n-gram size
-    :param tokens: tokenized sentence
-    :return: list of ngrams
-    ngrams of tuple form: ((previous wordS!), target word)
-    """
-    l = [(tuple([tokens[i-p-1] for p in reversed(range(n-1))]), tokens[i]) for i in range(n-1, len(tokens))]
-    return l
-
-
-def predict(gram, counts : Counter):
-    n = len(gram)
-    numer = counts.get(gram)
-    i_minus_1_gram = gram[1:]
-    denom = counts.get(i_minus_1_gram)
-    return numer/denom 
+            # update the context queue like a sliding window
+            # remove the first chord - not in the scope of context (prev grams) for the next iteration
+            # append newly generated chord - now the most recent context for the next iteration
+            context_queue.pop(0)
+            context_queue.append(new_chord)
+        return result
 
 def main(args):
-    m = NgramModel(6)
-    m.update(args.dir)
+    chord_list = read_chord_dir(args.dir)
+
+    m = NgramModel(3)
+    m.update(chord_list)
     # for x in m.ngram_counter:
     #     if x[0][0] == '<s>':
     #         print(x)
     # print(m.ngram_counter)
-    seq = m.generate(15)
+    seq = m.generate(15, method="semi")
     compose(seq)
 
 

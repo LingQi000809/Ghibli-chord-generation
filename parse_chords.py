@@ -211,7 +211,7 @@ def read_chord_file(fp):
         chords.append(c)
     return chords 
 
-def read_chord_dir(dir):
+def read_chord_dir(dir: str):
     """Takes a directory of chord files and appends them into one list"""
     for root, dirs, files in os.walk(dir, topdown=False):
         result = []
