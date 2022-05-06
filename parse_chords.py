@@ -239,17 +239,17 @@ def main(args):
     # print(t.chords)
     # write_midi_to_chords(midi_filepath, max_notes=5)
 
-    # if midi_filepath:
-    #     write_midi_to_chords(midi_filepath, max_notes=5)
-    #     write_midi_to_chords(midi_filepath)
-    # if midi_dir:
-    #     for f in os.listdir(midi_dir):
-    #         midi_filepath = os.path.join(midi_dir, f)
-    #         if os.path.isfile(midi_filepath):
-    #             write_midi_to_chords(midi_filepath, max_notes=5)
-    #             write_midi_to_chords(midi_filepath)
-    chords = read_chord_dir("chords/max5")
-    print(chords)
+    if midi_filepath:
+        write_midi_to_chords(midi_filepath, max_notes=5)
+        write_midi_to_chords(midi_filepath)
+    if midi_dir:
+        for f in os.listdir(midi_dir):
+            midi_filepath = os.path.join(midi_dir, f)
+            if os.path.isfile(midi_filepath):
+                write_midi_to_chords(midi_filepath, max_notes=5)
+                write_midi_to_chords(midi_filepath)
+    # chords = read_chord_dir("chords/max5")
+    # print(chords)
     # print(len(chords))
     # print(len(Counter))
     # count = Counter(chords)
