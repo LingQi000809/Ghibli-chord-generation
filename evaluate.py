@@ -60,6 +60,7 @@ def creating_root_files(directory):
         root_list = []
         with open(os.path.join(r_dir, filename), 'r') as f:
             sequence = f.readlines()
+            # skip first and last element because those are start and end symbols 
             for chord_in_seq in sequence[1:-1]:
                 temp_list = chord_in_seq.strip().split(" ")
                 if '' in temp_list:
@@ -69,17 +70,18 @@ def creating_root_files(directory):
                     root_list.append(temp_chord.root())
         with open(os.path.join(w_dir, filename), 'w') as f:
             for root in root_list:
-                f.write(f"{root} ")
-            f.write("\n")                    
+                f.write(f"{root} ")         
 
 
 def main():
     #list1 = ['C E- G', 'A- D F', 'B D F G', 'B- C E- G', 'C E- G', 'A- C F', 'B D F G', 'C E- G', 'C E- G', 'A- C F', 'B D G', 'A- C F']
     #list2 = ['A- C F', 'C E- G', 'A- D F', 'B D F']
 
-    creating_root_files("maxNone")
+    creating_root_files("max5")
     
     #print("checking chords: ", same_sequence_number(list1))
     #print("length of lcs is ", lcs(list1, list2))
+
+    pass
 
 main()
