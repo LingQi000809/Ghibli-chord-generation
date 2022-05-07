@@ -29,6 +29,10 @@ def lcs(X, Y):
     return L[m][n]
 
 def is_sublist(a, b):
+    """
+    helper function to see if list a is a sublist of b
+    it has to appear in order in b
+    """
     for i in range(len(b) - len(a)+1):
         if b[i:i+len(a)] == a:
             return True
@@ -59,6 +63,7 @@ def same_sequence_number(sequence, comp_dir):
             comp_roots = f.readline().split(" ")
             if is_sublist(root_list, comp_roots):
                 piece_count += 1
+                # can use this print to check which pieces it appears in
                 #print(filename)
 
     return piece_count 
