@@ -1,13 +1,14 @@
 import argparse
-from tokenize import String
-from typing import List
-from nltk import ngrams
-from nltk import NaiveBayesClassifier
-from collections import Counter
-from parse_chords import read_chord_dir, read_chord_file
 import os
 import random 
+
+from collections import Counter
 from compose import compose
+from nltk import ngrams
+from nltk import NaiveBayesClassifier
+from parse_chords import read_chord_dir, read_chord_file
+from tokenize import String
+from typing import List
 
 
 class NgramModel(object):

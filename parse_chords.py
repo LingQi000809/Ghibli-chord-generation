@@ -49,7 +49,7 @@ class Tune:
         for part in self.score.parts:
             num_mm = max(len(part.getElementsByClass('Measure')), num_mm)
         # print(num_mm)
-        keys = []
+        keys = ["<s>"]
         # measure num starts from 1
         for i in range(num_mm+1)[1:]:
             mm = self.score.measure(i)
@@ -69,6 +69,7 @@ class Tune:
                 # # there can be multiple tags for one measure
                 # keys.append([k.tonic.name] + alt_knames)
                 keys.append(k.tonic.name)
+        keys.append("<e>")
         return keys
 
     def get_chords(self, min_threshold: float = 1.0, max_notes: int = None) -> list:
@@ -229,13 +230,13 @@ class Tune:
         if self.chord_per_measure:
             keys = self.get_mm_keys()
             # make sure that we have the same #keys and #chords (excluding s and e chords)
-            if len(chords)-2 != len(keys):
+            if len(chords) != len(keys):
                 raise ValueError(f"number of chords ({len(chords)}) not equal to number of keys per measure ({len(keys)})")
         with open(chord_fpath, "w") as f:
             for i, chord_notes in enumerate(chords):
-                if self.chord_per_measure and i!=0 and i!=len(chords)-1:
+                if self.chord_per_measure:
                     # i starts from <s>. When i=1, for keys the index is 0
-                    mm_keys = keys[i-1]
+                    mm_keys = keys[i]
                     f.write(f"{mm_keys}: ")
                 f.write(" ".join(chord_notes))
                 f.write("\n")
