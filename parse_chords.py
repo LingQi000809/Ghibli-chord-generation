@@ -223,8 +223,7 @@ class Tune:
         f_dir = os.path.join(chords_dir, maxnotes_dir)
         if not os.path.exists(f_dir):
             os.mkdir(f_dir)
-        
-        # write chords to file
+        # write to file
         chord_fpath = os.path.join(f_dir, name)
         chords = self.get_chords(min_threshold=min_threshold, max_notes=max_notes)
         if self.chord_per_measure:
