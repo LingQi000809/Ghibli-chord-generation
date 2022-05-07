@@ -250,7 +250,7 @@ def read_chord_file(fp):
     chords = []
     for line in fp.readlines():
         line_split = line.strip().split()
-        if line_split[0].endswith(':'):
+        if len(line_split) > 0 and line_split[0].endswith(':'):
             keys.append(line_split[0][:-1])
             notes = sorted(line_split[1:])
         else:
@@ -259,18 +259,19 @@ def read_chord_file(fp):
         chords.append(c)
     return keys, chords 
 
-def read_chord_dir(dir: str):
+def read_chord_dir(directory: str):
     """Takes a directory of chord files and appends them into one list"""
-    for root, dirs, files in os.walk(dir, topdown=False):
-        result = []
+    all_keys = []
+    all_chords = []
+    for root, dirs, files in os.walk(directory, topdown=False):
         for filename in files:
             if filename.startswith('.'):
                 continue
             with open(os.path.join(root, filename)) as fp:
-                chords = read_chord_file(fp)
-                for chord in chords:
-                    result.append(chord)
-    return result
+                keys, chords = read_chord_file(fp)
+                all_keys.extend(keys)
+                all_chords.extend(chords)
+    return all_keys, all_chords
 
 def write_midi_to_chords(fname: str, min_threshold: float = 1.0, max_notes: int = None, chord_per_measure: bool = False):
     print(f"writing {fname} to chords with min_threshold: {min_threshold}; max_notes: {max_notes}; chord_per_measure: {chord_per_measure}")

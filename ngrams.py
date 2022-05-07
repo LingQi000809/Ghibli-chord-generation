@@ -150,6 +150,7 @@ class NgramModel(object):
 
 def main(args):
     _, chord_list = read_chord_dir(args.dir)
+    # print(chord_list)
 
     m = NgramModel(3)
     m.update(chord_list)
