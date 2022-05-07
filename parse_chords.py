@@ -211,11 +211,13 @@ def read_chord_file(fp):
         chords.append(c)
     return chords 
 
-def read_chord_dir(dir):
+def read_chord_dir(dir: str):
     """Takes a directory of chord files and appends them into one list"""
     for root, dirs, files in os.walk(dir, topdown=False):
         result = []
         for filename in files:
+            if filename.startswith('.'):
+                continue
             with open(os.path.join(root, filename)) as fp:
                 chords = read_chord_file(fp)
                 for chord in chords:
@@ -239,21 +241,22 @@ def main(args):
     # print(t.chords)
     # write_midi_to_chords(midi_filepath, max_notes=5)
 
-    if midi_filepath:
-        write_midi_to_chords(midi_filepath, max_notes=5)
-        write_midi_to_chords(midi_filepath)
-    if midi_dir:
-        for f in os.listdir(midi_dir):
-            midi_filepath = os.path.join(midi_dir, f)
-            if os.path.isfile(midi_filepath):
-                write_midi_to_chords(midi_filepath, max_notes=5)
-                write_midi_to_chords(midi_filepath)
-    # chords = read_chord_dir("chords/max5")
+    # if midi_filepath:
+    #     write_midi_to_chords(midi_filepath, max_notes=5)
+    #     write_midi_to_chords(midi_filepath)
+    # if midi_dir:
+    #     for f in os.listdir(midi_dir):
+    #         midi_filepath = os.path.join(midi_dir, f)
+    #         if os.path.isfile(midi_filepath):
+    #             write_midi_to_chords(midi_filepath, max_notes=5)
+    #             write_midi_to_chords(midi_filepath)
+    chords = read_chord_dir("chords/max5")
     # print(chords)
-    # print(len(chords))
+    print(len(chords))
     # print(len(Counter))
-    # count = Counter(chords)
-    # print(count)
+    count = Counter(chords)
+    print(count)
+    print(len(count))
     # plt.hist(count.keys())
     # plt.show()
     
