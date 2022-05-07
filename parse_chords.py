@@ -41,6 +41,9 @@ class Tune:
         i = interval.Interval(note.Note(from_tonic), note.Note(to_tonic))
         score.transpose(i, inPlace=True)
 
+    def get_mm_keys(self):
+        ...
+
     def get_chords(self, min_threshold: float = 1.0, max_notes: int = None) -> list:
         """ get chords from counters. Each chord is represented as a list of note symbols.
             E.g. ['G', 'D', 'C', 'F#', 'E']
