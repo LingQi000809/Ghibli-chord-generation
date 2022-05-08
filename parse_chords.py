@@ -301,10 +301,11 @@ def main(args):
             if f.startswith('.'):
                 continue
             midi_filepath = os.path.join(midi_dir, f)
-            if os.path.isfile(midi_filepath):
-                write_midi_to_chords(midi_filepath, max_notes=5, chord_per_measure=True)
+            if os.path.isfile(midi_filepath):                
+                # write_midi_to_chords(midi_filepath, max_notes=3)
+                # write_midi_to_chords(midi_filepath, max_notes=3, chord_per_measure=True)
                 # write_midi_to_chords(midi_filepath, max_notes=5)
-                # write_midi_to_chords(midi_filepath)
+                write_midi_to_chords(midi_filepath, chord_per_measure=True)
     # chords = read_chord_dir("chords/max5")
     # print(chords)
     # print(len(chords))

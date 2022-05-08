@@ -27,4 +27,5 @@ def compose(seq: list, show_score: bool = True):
         chord_streams.append(c)
     for c in chord_streams:
         composition.append(c)
-    composition.show()
+    if show_score:
+        composition.show()

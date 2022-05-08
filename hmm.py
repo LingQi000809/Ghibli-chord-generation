@@ -51,6 +51,7 @@ class HMM(object):
         # ]
         # each key's value is a list of probability for each possible chord string (fixed index from unique_chords)
         self.key_chord_probs = self.build_key_chord_probs()
+        # print(self.key_chord_probs)
 
     def build_idx_mapping(self, from_unique_list: list) -> dict:
         """ 
