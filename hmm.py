@@ -14,12 +14,13 @@ from typing import List
 
 
 class HMM(object):
-    def __init__(self, order: int, keys: list, chords: list):
+    def __init__(self, order: int, keys: list, chords: list, verbose: bool = False):
         """
         order: number of previous hidden states to look at in order to generate the next hidden state;
         keys: a list of keys (hidden states);
         chords: a list of chord strings (observed states)
         """
+        self.verbose = verbose
         self.order = order
         self.keys = keys
         self.chords = chords
@@ -27,7 +28,7 @@ class HMM(object):
         assert(len(self.keys) == len(self.chords))
 
         # build an ngram for keys
-        self.key_ngram = NgramModel(self.order)
+        self.key_ngram = NgramModel(self.order, verbose=self.verbose)
         self.key_ngram.update(keys)
 
         # a list of all unique keys        
@@ -59,7 +60,7 @@ class HMM(object):
         """
         mapping = {}
         for i, feature in enumerate(from_unique_list):
-            assert(key not in mapping)
+            assert(feature not in mapping)
             mapping[feature] = i
         return mapping
     
@@ -99,7 +100,7 @@ class HMM(object):
         gen_keys = self.key_ngram.generate(seq_len, method=gen_key_method)
         gen_chords = []
         for key in gen_keys:
-            key_idx = self.key_to_idx(key)
+            key_idx = self.key_to_idx[key]
             chord_probs = self.key_chord_probs[key_idx]
             if gen_chord_method == "prob":
                 gen_chord = random.choices(self.unique_chords, weights=chord_probs, k=1)[0]
@@ -108,11 +109,21 @@ class HMM(object):
             else:
                 raise ValueError("Unrecognized method for generating chords from emission matrix in HMM. Currently supported methods are: 'prob', 'best'.")
             gen_chords.append(gen_chord)
-        return gen_chords
+        return gen_keys, gen_chords
 
 def main(args):
     keys, chords = read_chord_dir(args.dir)
-    hmm = HMM(3, keys, chords)
+    hmm = HMM(5, keys, chords, verbose=True)
+    key_seq, chord_seq = hmm.generate(10, gen_key_method="prob", gen_chord_method="prob")
+    print(key_seq)
+    print(chord_seq)
+    compose(chord_seq)
+
+def dir_path(string):
+    if os.path.isdir(string):
+        return string
+    else:
+        raise NotADirectoryError(string)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

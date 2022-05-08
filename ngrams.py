@@ -13,10 +13,11 @@ from typing import List
 
 class NgramModel(object):
 
-    def __init__(self, n: int):
-        if n < 1:
-            raise ValueError("N for an Ngram model must be greater than 0.")
+    def __init__(self, n: int, verbose: bool = False):
+        if n < 2:
+            raise ValueError("N for an Ngram model must be greater than 1.")
         self.n = n
+        self.verbose = verbose
         # key: context (previous chords); value: a list of candidate next chord;
         # example: {("C E G", "A D F"): ["C E G", "B D G", ...]}
         self.context = {}
@@ -46,7 +47,7 @@ class NgramModel(object):
         new_chord_list = []
         for c in chord_list:
             if c == '<s>':
-                new_chord_list.extend(['<s>'] * (n-1))
+                new_chord_list.extend(['<s>'] * (n-2))
             new_chord_list.append(c)
 
         # get ngrams
@@ -81,7 +82,8 @@ class NgramModel(object):
         candidate_chords = self.context[context]
         for c in candidate_chords:
             candidate_probs[c] = self.prob(context, c)
-        print(f"context: {context}\ncandidates: {candidate_probs}")
+        if self.verbose:
+            print(f"context: {context}\ncandidates: {candidate_probs}")
         return candidate_probs
 
     def gen_chord_semirandom(self, context: tuple):
@@ -153,13 +155,16 @@ def main(args):
     _, chord_list = read_chord_dir(args.dir)
     # print(chord_list)
 
-    m = NgramModel(3)
+    m = NgramModel(3, verbose=True)
     m.update(chord_list)
     # for x in m.ngram_counter:
     #     if x[0][0] == '<s>':
     #         print(x)
     # print(m.ngram_counter)
-    seq = m.generate(15, method="semi")
+
+    # a very large seq_len generates a sequence till the ending
+    seq = m.generate(100, method="semi")
+    print(seq)
     compose(seq)
 
 
