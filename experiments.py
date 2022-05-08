@@ -103,11 +103,9 @@ def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True
             ef.write(str(ngram_table))
             
 
-
-
 def main():
     gen_outputs(ngrams=False)
-    gen_evaluations()
+    gen_evaluations(ngrams=False)
 
 
 
