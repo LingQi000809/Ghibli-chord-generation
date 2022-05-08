@@ -29,6 +29,44 @@ def lcs(X, Y):
     # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
     return L[m][n]
 
+
+def generate_lcs_evaluations(gen_directory, piece_dir):
+    """
+    takes a directory within outputs and finds the longest common subsequence
+    for each generated sequence and all the pieces in the corpus. it stores
+    the maximum of those LCS values and then moves onto the next generated sequence
+
+    it returns the average max lcs for each generated sequence when compared to the whole corpus.
+    """
+   
+
+    # directories for the generated sequences and the chord
+    gen_path = os.path.join("outputs", gen_directory)
+    chord_path = os.path.join("chords", piece_dir)
+
+    lcs_list = []
+    piece_list = {}
+
+    # generates a list of piece sequences in the appropriate directory
+    for filename in os.listdir(chord_path):
+        with open(os.path.join(chord_path, filename), 'r') as f:
+            _, piece_seq = read_chord_file(f)
+            piece_list.append(piece_seq)
+
+    # goes through each generated sequence and then each piece and finds the 
+    # lcs for each. only saves the maximum lcs for each generated sequence
+    for filename in os.listdir(gen_path):
+        temp_list = []
+        for piece_seq in piece_list:
+            with open(os.path.join(gen_path, filename), 'r') as f:
+                _, gen_seq = read_chord_file(f)
+                temp_list.append(lcs(gen_seq, piece_seq))
+        lcs_list.append(max(temp_list))
+
+    #return the average lcs for each generated sequence
+    return sum(lcs_list) / len(lcs_list)
+
+
 def is_sublist(a, b):
     """
     helper function to see if list a is a sublist of b
@@ -50,6 +88,8 @@ def same_sequence_number(sequence, comp_dir):
 
     # construct chords using .split 
     for chord_in_seq in sequence:
+        if chord_in_seq.startswith("<"):
+            continue
         temp_chord = chord.Chord(chord_in_seq.split(" "))
         root_list.append(temp_chord.root())
 
@@ -68,6 +108,24 @@ def same_sequence_number(sequence, comp_dir):
                 print(filename)
 
     return piece_count 
+
+def generate_snn_evaluation(gen_dir, comp_dir):
+    """
+    takes a directory of generated sequences and a comparison folder in the roots
+    directory. stores the number of pieces with overlapping root sequences in a list
+    and then returns the average number of pieces for the whole list of generated sequences
+    """
+    
+    gen_path = os.path.join("outputs", gen_dir)
+    piece_count_list = []
+
+    for filename in os.listdir(gen_path):
+        with open(os.path.join(dir, filename), 'r') as f:
+            _, sequence = read_chord_file(f)
+            piece_count_list.append(same_sequence_number(sequence, comp_dir))
+
+    return sum(piece_count_list) / len(piece_count_list)
+
 
 def creating_root_files(directory):
     """
@@ -99,7 +157,6 @@ def creating_root_files(directory):
         with open(os.path.join(w_dir, filename), 'w') as f:
             for root in root_list:
                 f.write(f"{root} ")         
-
 
 def main():
     #list1 = ['C E- G', 'A- D F', 'B D F G', 'B- C E- G', 'C E- G', 'A- C F', 'B D F G', 'C E- G', 'C E- G', 'A- C F', 'B D G', 'A- C F']
