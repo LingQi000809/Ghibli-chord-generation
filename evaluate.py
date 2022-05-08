@@ -81,7 +81,7 @@ def same_sequence_number(sequence, comp_dir):
 
     # construct chords using .split 
     for chord_in_seq in sequence:
-        if chord_in_seq.startswith("<"):
+        if chord_in_seq.startswith("<") or not chord_in_seq:
             continue
         temp_chord = chord.Chord(chord_in_seq.split(" "))
         root_list.append(temp_chord.root())
@@ -117,7 +117,7 @@ def generate_ssn_evaluation(gen_dir, comp_dir):
             _, sequence = read_chord_file(f)
             piece_count_list.append(same_sequence_number(sequence, comp_dir))
 
-    print(f"calculating average snn from {len(piece_count_list)} generated sequences")
+    print(f"calculating average ssn from {len(piece_count_list)} generated sequences")
 
     return sum(piece_count_list) / len(piece_count_list)
 

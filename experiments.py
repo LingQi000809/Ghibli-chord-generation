@@ -1,7 +1,7 @@
 import os
 
 from baseline import *
-from evaluate import generate_lcs_evaluations, generate_snn_evaluation
+from evaluate import generate_lcs_evaluations, generate_ssn_evaluation
 from hmm import *
 from ngrams import *
 from parse_chords import read_chord_dir, read_chord_file
@@ -77,27 +77,27 @@ def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True
         output_dir = "ngrams"
 
         # create table
-        ngram_table = PrettyTable(["Experiment", "Avg LCS", "Avg SNN"])
+        ngram_table = PrettyTable(["Experiment", "Avg LCS", "Avg SSN"])
         ngram_table.align["Experiment"] = "l" # Left align city names
 
         # maxnote
         for maxnote in maxnote_experiments:
             output_maxnote_dir = os.path.join(output_dir, maxnote)
             lcs = generate_lcs_evaluations(output_maxnote_dir, maxnote)
-            snn = generate_snn_evaluation(output_maxnote_dir, maxnote)
-            ngram_table.add_row([f"{maxnote}", lcs, snn])
+            ssn = generate_ssn_evaluation(output_maxnote_dir, maxnote)
+            ngram_table.add_row([f"{maxnote}", lcs, ssn])
             # n
             for n in n_experiments:
                 output_n_dir = os.path.join(output_maxnote_dir, f"n{n}")
                 lcs = generate_lcs_evaluations(output_n_dir, maxnote)
-                snn = generate_snn_evaluation(output_n_dir, maxnote)
-                ngram_table.add_row([f"{maxnote}:n{n}", lcs, snn])
+                ssn = generate_ssn_evaluation(output_n_dir, maxnote)
+                ngram_table.add_row([f"{maxnote}:n{n}", lcs, ssn])
                 # seq_len
                 for seq_len in seq_len_experiments:
                     output_seqlen_dir = os.path.join(output_n_dir, f"seq{seq_len}")
                     lcs = generate_lcs_evaluations(output_seqlen_dir, maxnote)
-                    snn = generate_snn_evaluation(output_seqlen_dir, maxnote)
-                    ngram_table.add_row([f"{maxnote}:n{n}:seq{seq_len}", lcs, snn])
+                    ssn = generate_ssn_evaluation(output_seqlen_dir, maxnote)
+                    ngram_table.add_row([f"{maxnote}:n{n}:seq{seq_len}", lcs, ssn])
 
         with open(eval_file, "w") as ef:
             ef.write(str(ngram_table))
