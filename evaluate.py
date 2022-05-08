@@ -1,5 +1,6 @@
 from music21 import *
 import os
+from parse_chords import read_chord_file
 
 def lcs(X, Y):
     """
@@ -64,7 +65,7 @@ def same_sequence_number(sequence, comp_dir):
             if is_sublist(root_list, comp_roots):
                 piece_count += 1
                 # can use this print to check which pieces it appears in
-                #print(filename)
+                print(filename)
 
     return piece_count 
 
@@ -83,8 +84,10 @@ def creating_root_files(directory):
 
     for filename in os.listdir(r_dir):
         root_list = []
+        
         with open(os.path.join(r_dir, filename), 'r') as f:
-            sequence = f.readlines()
+            _, sequence = read_chord_file(f)
+            
             # skip first and last element because those are start and end symbols 
             for chord_in_seq in sequence[1:-1]:
                 temp_list = chord_in_seq.strip().split(" ")
@@ -106,9 +109,9 @@ def main():
     """with open(os.path.join("roots", "max5", "A_Lost_Child-thresh1.0"), 'r') as f:
         print(f.readline().split(" "))"""
 
-    #creating_root_files("max5")
+    creating_root_files("max3")
     
-    print("checking chords: ", same_sequence_number(list3, "max5"))
+    #print("checking chords: ", same_sequence_number(list3, "max5"))
     #print("length of lcs is ", lcs(list1, list2))
 
 main()
