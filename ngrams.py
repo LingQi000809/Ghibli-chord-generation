@@ -128,7 +128,7 @@ class NgramModel(object):
         context_queue = ['<s>'] * (n-1)
         # result keeps track of the final sequence
         result = []
-        for i in range(seq_len + n):
+        for i in range(seq_len):
             # generate a new chord with the specified method
             if method == "prob":
                 new_chord = self.gen_chord_by_prob(tuple(context_queue))
@@ -152,10 +152,13 @@ class NgramModel(object):
         return result
 
 def main(args):
+    if not args.dir:
+        return
+
     _, chord_list = read_chord_dir(args.dir)
     # print(chord_list)
 
-    m = NgramModel(3, verbose=True)
+    m = NgramModel(5, verbose=True)
     m.update(chord_list)
     # for x in m.ngram_counter:
     #     if x[0][0] == '<s>':
@@ -163,7 +166,7 @@ def main(args):
     # print(m.ngram_counter)
 
     # a very large seq_len generates a sequence till the ending
-    seq = m.generate(100, method="semi")
+    seq = m.generate(4)
     print(seq)
     compose(seq)
 
