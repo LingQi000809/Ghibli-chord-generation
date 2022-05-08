@@ -109,7 +109,7 @@ def same_sequence_number(sequence, comp_dir):
 
     return piece_count 
 
-def generate_snn_evaluation(gen_dir, comp_dir):
+def generate_ssn_evaluation(gen_dir, comp_dir):
     """
     takes a directory of generated sequences and a comparison folder in the roots
     directory. stores the number of pieces with overlapping root sequences in a list
