@@ -7,30 +7,35 @@ from parse_chords import read_chord_dir, read_chord_file
 
 def lcs(X, Y):
     """
-    source: https://www.geeksforgeeks.org/python-program-for-longest-common-subsequence/
+    source: https://www.geeksforgeeks.org/longest-common-substring-dp-29/
 
-    returns the length of the longest common subsequence for two lists of chords: X and Y
+    returns the length of the longest common sequential subsequence for two lists of chords: X and Y
     """
     
     # find the length of the lists
     m = len(X)
     n = len(Y)
 
-    # declaring the array for storing values
-    L = [[None] * (n+1) for i in range(m+1)]
-
-    #builds L[m+1][n+1]
-    for i in range(m+1):
-        for j in range(n+1):
-            if i == 0 or j == 0:
-                L[i][j] = 0
-            elif X[i-1] == Y[j-1]:
-                L[i][j] = L[i-1][j-1]+1
+    # LCSuff is the table with zero
+    # value initially in each cell
+    LCSuff = [[0 for k in range(n+1)] for l in range(m+1)]
+ 
+    # To store the length of
+    # longest common substring
+    result = 0
+ 
+    # Following steps to build
+    # LCSuff[m+1][n+1] in bottom up fashion
+    for i in range(m + 1):
+        for j in range(n + 1):
+            if (i == 0 or j == 0):
+                LCSuff[i][j] = 0
+            elif (X[i-1] == Y[j-1]):
+                LCSuff[i][j] = LCSuff[i-1][j-1] + 1
+                result = max(result, LCSuff[i][j])
             else:
-                L[i][j] = max(L[i-1][j], L[i][j-1])
-
-    # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
-    return L[m][n]
+                LCSuff[i][j] = 0
+    return result
 
 
 def generate_lcs_evaluations(gen_directory, piece_dir):
@@ -156,8 +161,8 @@ def creating_root_files(directory):
                 f.write(f"{root} ")         
 
 def main():
-    #list1 = ['C E- G', 'A- D F', 'B D F G', 'B- C E- G', 'C E- G', 'A- C F', 'B D F G', 'C E- G', 'C E- G', 'A- C F', 'B D G', 'A- C F']
-    #list2 = ['A- C F', 'C E- G', 'A- D F', 'B D F']
+    list1 = ['C E- G', 'A- D F', 'B D F G', 'B- C E- G', 'C E- G', 'A- C F', 'B D F G', 'C E- G', 'C E- G', 'A- C F', 'B D G', 'A- C F']
+    list2 = ['A- C F', 'B D F G', 'C E- D', 'C E- G']
     #list3 = ['G D B- C E-', 'E-', 'G C E-', 'E-']
 
     """with open(os.path.join("roots", "max5", "A_Lost_Child-thresh1.0"), 'r') as f:
@@ -166,6 +171,7 @@ def main():
     #creating_root_files("max3")
     
     #print("checking chords: ", same_sequence_number(list3, "max5"))
-    #print("length of lcs is ", lcs(list1, list2))
+    print("length of lcs is ", lcs(list1, list2))
+    #print("length of lcs is ", lcs("OldSite:GeeksforGeeks.org", "NewSite:GeeksQuiz.com"))
 
 main()
