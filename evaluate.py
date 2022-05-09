@@ -158,12 +158,12 @@ def creating_root_files(directory):
 def main():
     #list1 = ['C E- G', 'A- D F', 'B D F G', 'B- C E- G', 'C E- G', 'A- C F', 'B D F G', 'C E- G', 'C E- G', 'A- C F', 'B D G', 'A- C F']
     #list2 = ['A- C F', 'C E- G', 'A- D F', 'B D F']
-    list3 = ['G D B- C E-', 'E-', 'G C E-', 'E-']
+    #list3 = ['G D B- C E-', 'E-', 'G C E-', 'E-']
 
     """with open(os.path.join("roots", "max5", "A_Lost_Child-thresh1.0"), 'r') as f:
         print(f.readline().split(" "))"""
 
-    creating_root_files("max3")
+    #creating_root_files("max3")
     
     #print("checking chords: ", same_sequence_number(list3, "max5"))
     #print("length of lcs is ", lcs(list1, list2))
