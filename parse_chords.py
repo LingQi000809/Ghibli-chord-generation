@@ -292,29 +292,30 @@ def main(args):
     # print(t.chords)
     # write_midi_to_chords(midi_filepath, max_notes=5)
 
-    if midi_filepath:                
-        write_midi_to_chords(midi_filepath, max_notes=5, chord_per_measure=True)
-        # write_midi_to_chords(midi_filepath, max_notes=5)
-        # write_midi_to_chords(midi_filepath)
-    if midi_dir:
-        for f in os.listdir(midi_dir):
-            if f.startswith('.'):
-                continue
-            midi_filepath = os.path.join(midi_dir, f)
-            if os.path.isfile(midi_filepath):                
-                # write_midi_to_chords(midi_filepath, max_notes=3)
-                # write_midi_to_chords(midi_filepath, max_notes=3, chord_per_measure=True)
-                # write_midi_to_chords(midi_filepath, max_notes=5)
-                write_midi_to_chords(midi_filepath, chord_per_measure=True)
-    # chords = read_chord_dir("chords/max5")
-    # print(chords)
-    # print(len(chords))
-    # print(len(Counter))
-    # count = Counter(chords)
-    # print(count)
-    # print(len(count))
-    # plt.hist(count.keys())
-    # plt.show()
+    # if midi_filepath:                
+    #     write_midi_to_chords(midi_filepath, max_notes=5, chord_per_measure=True)
+    #     # write_midi_to_chords(midi_filepath, max_notes=5)
+    #     # write_midi_to_chords(midi_filepath)
+    # if midi_dir:
+    #     for f in os.listdir(midi_dir):
+    #         if f.startswith('.'):
+    #             continue
+    #         midi_filepath = os.path.join(midi_dir, f)
+    #         if os.path.isfile(midi_filepath):                
+    #             # write_midi_to_chords(midi_filepath, max_notes=3)
+    #             # write_midi_to_chords(midi_filepath, max_notes=3, chord_per_measure=True)
+    #             # write_midi_to_chords(midi_filepath, max_notes=5)
+    #             write_midi_to_chords(midi_filepath, chord_per_measure=True)
+    for corpus in ["max3", "max3_per_mm", "max5", "max5_per_mm", "maxNone", "maxNone_per_mm"]:
+        print(f"for {corpus}")
+        _, chords = read_chord_dir(f"chords/{corpus}")
+        # print(chords)
+        print(len(chords))
+        count = Counter(chords)
+        print(len(count))
+        print(count)
+        # plt.hist(count.keys())
+        # plt.show()
     
 def dir_path(string):
     if os.path.isdir(string):
