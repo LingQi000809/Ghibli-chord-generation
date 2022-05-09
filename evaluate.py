@@ -55,6 +55,7 @@ def generate_lcs_evaluations(gen_directory, piece_dir):
             # longest common subsequence between the current generated sequence and our corpus
             cur_lcs = lcs(gen_seq, all_chords)
             lcs_list.append(cur_lcs)
+    print(lcs_list)
     print(f"calculating average lcs from {len(lcs_list)} generated sequences")
     #return the average lcs for each generated sequence
     return sum(lcs_list) / len(lcs_list)
@@ -89,7 +90,8 @@ def same_sequence_number(sequence, comp_dir):
     # converts the list of music21 pitches to a list of strings
     for count, root in enumerate(root_list):
        root_list[count] = root.name
-    
+    print(root_list)
+
     # compares the list of root strings to see if it's a sublist for any piece in the 
     # roots directory
     for filename in os.listdir(dir):
