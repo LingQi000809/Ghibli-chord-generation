@@ -212,8 +212,8 @@ def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True
     # =====
 
 def main():
-    gen_outputs(baseline=True, ngrams=False, hmm=False)
-    gen_evaluations(baseline=True, ngrams=False, hmm=False)
+    gen_outputs(baseline=False, ngrams=False, hmm=False)
+    gen_evaluations(baseline=True, ngrams=True, hmm=True)
 
 
 
