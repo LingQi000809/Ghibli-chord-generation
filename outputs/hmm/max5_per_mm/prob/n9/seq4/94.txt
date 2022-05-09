@@ -1,0 +1,4 @@
+A- C E-
+A A- C
+C D G
+B B- C D F

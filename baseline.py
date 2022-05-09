@@ -26,22 +26,22 @@ class Baseline:
         # scale degree mapped to chord in E-major / C-minor key
         self.sd_chord_mapping = {
             "major": {
-                1: ["B- E- G", "B- D E- G"],
+                1: ["B- E- G"],
                 2: ["A- C F"],
                 3: ["B- D G"],
                 4: ["A- C E-"],
-                5: ["B- D F", "A- B- D F"],
+                5: ["B- D F"],
                 6: ["C E- G"],
                 7: ["A- D F"]
             },
             "minor": {
-                1: ["C E- G", "B- C E- G"],
+                1: ["C E- G"],
                 2: ["A- D F"],
                 3: ["B- E- G"],
                 4: ["A- C F"],
-                5: ["B D G", "B D F G"],
+                5: ["B D G"],
                 6: ["A- C E-"],
-                7: ["B- D F", "A- B- D F", "A- B D F"]
+                7: ["B- D F", "B D F"]
             }
         }
 
@@ -62,7 +62,7 @@ class Baseline:
             seq += cur_seq
             # update length
             cur_len += len(cur_seq)
-        return seq
+        return seq[:seq_len]
 
 def main():
     m = Baseline()
