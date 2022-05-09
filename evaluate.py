@@ -98,7 +98,7 @@ def same_sequence_number(sequence, comp_dir):
             if is_sublist(root_list, comp_roots):
                 piece_count += 1
                 # can use this print to check which pieces it appears in
-                print(filename)
+                #print(filename)
 
     return piece_count 
 
