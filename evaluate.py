@@ -1,6 +1,9 @@
-from music21 import *
+import glob
 import os
-from parse_chords import read_chord_file
+
+from music21 import *
+from parse_chords import read_chord_dir, read_chord_file
+
 
 def lcs(X, Y):
     """
@@ -39,30 +42,20 @@ def generate_lcs_evaluations(gen_directory, piece_dir):
     it returns the average max lcs for each generated sequence when compared to the whole corpus.
     """
    
-
     # directories for the generated sequences and the chord
     gen_path = os.path.join("outputs", gen_directory)
     chord_path = os.path.join("chords", piece_dir)
 
     lcs_list = []
-    piece_list = {}
 
-    # generates a list of piece sequences in the appropriate directory
-    for filename in os.listdir(chord_path):
-        with open(os.path.join(chord_path, filename), 'r') as f:
-            _, piece_seq = read_chord_file(f)
-            piece_list.append(piece_seq)
-
-    # goes through each generated sequence and then each piece and finds the 
-    # lcs for each. only saves the maximum lcs for each generated sequence
-    for filename in os.listdir(gen_path):
-        temp_list = []
-        for piece_seq in piece_list:
-            with open(os.path.join(gen_path, filename), 'r') as f:
-                _, gen_seq = read_chord_file(f)
-                temp_list.append(lcs(gen_seq, piece_seq))
-        lcs_list.append(max(temp_list))
-
+    _, all_chords = read_chord_dir(chord_path)
+    for filepath in glob.glob(f"{gen_path}/**/*.txt", recursive=True):
+        with open(filepath, 'r') as f:
+            _, gen_seq = read_chord_file(f)
+            # longest common subsequence between the current generated sequence and our corpus
+            cur_lcs = lcs(gen_seq, all_chords)
+            lcs_list.append(cur_lcs)
+    print(f"calculating average lcs from {len(lcs_list)} generated sequences")
     #return the average lcs for each generated sequence
     return sum(lcs_list) / len(lcs_list)
 
@@ -88,7 +81,7 @@ def same_sequence_number(sequence, comp_dir):
 
     # construct chords using .split 
     for chord_in_seq in sequence:
-        if chord_in_seq.startswith("<"):
+        if chord_in_seq.startswith("<") or not chord_in_seq:
             continue
         temp_chord = chord.Chord(chord_in_seq.split(" "))
         root_list.append(temp_chord.root())
@@ -119,10 +112,12 @@ def generate_ssn_evaluation(gen_dir, comp_dir):
     gen_path = os.path.join("outputs", gen_dir)
     piece_count_list = []
 
-    for filename in os.listdir(gen_path):
-        with open(os.path.join(dir, filename), 'r') as f:
+    for filepath in glob.glob(f"{gen_path}/**/*.txt", recursive=True):
+        with open(filepath, 'r') as f:
             _, sequence = read_chord_file(f)
             piece_count_list.append(same_sequence_number(sequence, comp_dir))
+
+    print(f"calculating average ssn from {len(piece_count_list)} generated sequences")
 
     return sum(piece_count_list) / len(piece_count_list)
 

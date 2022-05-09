@@ -1,0 +1,4 @@
+B- E- G
+A- B- D F
+C D E- G
+<e>

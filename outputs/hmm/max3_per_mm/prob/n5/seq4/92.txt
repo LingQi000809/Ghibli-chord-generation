@@ -1,0 +1,4 @@
+A F G
+B C# F
+B- D G
+A D E

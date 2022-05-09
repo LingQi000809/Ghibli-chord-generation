@@ -1,0 +1,8 @@
+A B-
+A- B- D F
+B- E- F#
+C E- G
+A- C E E-
+C D G
+A- B D F
+C E- G#
