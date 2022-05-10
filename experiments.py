@@ -6,9 +6,10 @@ from hmm import *
 from ngrams import *
 from parse_chords import read_chord_dir, read_chord_file
 from prettytable import PrettyTable
+from rnn import generate_output
 
 # experiments to run
-maxnote_experiments = ["max3", "max3_per_mm", "max5", "max5_per_mm"]
+maxnote_experiments = ["max5", "max5_per_mm"]
 seq_len_experiments = [4, 8, 12]
 # generate 100 sequences for each type of experiment
 num_seqs = 100
@@ -16,6 +17,10 @@ num_seqs = 100
 n_experiments = [2, 3, 5, 7, 9]
 # hmm-specific experiments: emission method
 hmm_methods = ["best", "prob"]
+# rnn-specific experiments
+rnn_seqlength = [20, 50, 100]
+rnn_notelength = [25, 35, 50]
+
 
 
 def gen_dir(dir_name: str) -> str:
@@ -107,6 +112,27 @@ def gen_outputs(baseline: bool = True, ngrams: bool = True, hmm: bool = True, rn
     # =====
     #  RNN
     # =====
+    if rnn:
+        output_dir = os.path.join("outputs", "rnn")
+        for maxnote in maxnote_experiments:
+            chord_dir = os.path.join("chords", maxnote)
+            rnn_dir = os.path.join("rnn_weights", maxnote)
+            output_maxnote_dir = gen_dir(os.path.join(output_dir, maxnote))
+            for seqlength in rnn_seqlength:
+                filepath = os.path.join(rnn_dir, f"{seqlength}.hdf5")
+                output_seq_dir = gen_dir(os.path.join(output_maxnote_dir, f"seqlength{seqlength}"))
+                for notelength in rnn_notelength:
+                    output_note_dir = gen_dir(os.path.join(output_seq_dir, f"notes{notelength}"))
+                    for i in range(50):
+                        output_file = os.path.join(output_note_dir, f"{i}.txt")
+                        print(seqlength, notelength, filepath, output_maxnote_dir, output_file)
+                        generate_output(seqlength, notelength, filepath, chord_dir, output_file)
+
+
+
+
+
+
 
 def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True, rnn: bool = True):
     
@@ -212,8 +238,8 @@ def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True
     # =====
 
 def main():
-    gen_outputs(baseline=True, ngrams=False, hmm=False)
-    gen_evaluations(baseline=True, ngrams=False, hmm=False)
+    gen_outputs(baseline=False, ngrams=False, hmm=False)
+    gen_evaluations(baseline=True, ngrams=True, hmm=True)
 
 
 

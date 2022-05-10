@@ -1,0 +1,13 @@
+A- B- C E- 
+B- E- F G 
+B- E- F G 
+A- B E- F# 
+B C# E- F 
+B- C# F F# 
+B B- E- F# 
+A- B E E- 
+A- B C# F 
+A- B- C# F F# 
+A- B- C# F# 
+A- B C# F# 
+A- B- C# F# 
