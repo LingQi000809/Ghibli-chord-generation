@@ -1,0 +1,12 @@
+C D G 
+A- C E- 
+B- D G 
+B- C E- 
+C D F 
+C D G 
+A- C E- 
+B- D E- 
+C D F 
+A- C E- 
+B- D G 
+C E- G 

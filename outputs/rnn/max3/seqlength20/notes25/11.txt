@@ -1,0 +1,11 @@
+C# E- F# 
+A- C# E- 
+A- C# E- 
+A C F 
+C C# F 
+B- 
+B- C# 
+B 
+B 
+B- F F# 
+B- E- F# 
