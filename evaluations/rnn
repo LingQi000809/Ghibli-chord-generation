@@ -1,0 +1,56 @@
++----------------------------------+--------------------+--------------------+
+| Experiment                       |      Avg LCS       |      Avg SSN       |
++----------------------------------+--------------------+--------------------+
+| max3                             | 6.9622222222222225 | 1.3933333333333333 |
+| max3:seqlength20                 | 8.573333333333334  | 1.7733333333333334 |
+| max3:seqlength20:notes25         |        6.8         |        2.98        |
+| max3:seqlength20:notes35         |        8.74        |        1.66        |
+| max3:seqlength20:notes50         |       10.18        |        0.68        |
+| max3:seqlength50                 | 3.6666666666666665 |        1.74        |
+| max3:seqlength50:notes25         |        3.02        |        3.38        |
+| max3:seqlength50:notes35         |        3.4         |        1.46        |
+| max3:seqlength50:notes50         |        4.58        |        0.38        |
+| max3:seqlength100                | 8.646666666666667  | 0.6666666666666666 |
+| max3:seqlength100:notes25        |        6.12        |        1.64        |
+| max3:seqlength100:notes35        |        8.36        |        0.22        |
+| max3:seqlength100:notes50        |       11.46        |        0.14        |
+| max3_per_mm                      |        5.74        | 1.8844444444444444 |
+| max3_per_mm:seqlength20          | 6.513333333333334  |        1.44        |
+| max3_per_mm:seqlength20:notes25  |        6.02        |        2.82        |
+| max3_per_mm:seqlength20:notes35  |        6.06        |        1.4         |
+| max3_per_mm:seqlength20:notes50  |        7.46        |        0.1         |
+| max3_per_mm:seqlength50          | 5.406666666666666  | 1.6666666666666667 |
+| max3_per_mm:seqlength50:notes25  |        4.8         |        1.18        |
+| max3_per_mm:seqlength50:notes35  |        5.64        |        0.08        |
+| max3_per_mm:seqlength50:notes50  |        5.78        |        3.74        |
+| max3_per_mm:seqlength100         |        5.3         | 2.546666666666667  |
+| max3_per_mm:seqlength100:notes25 |        4.56        |        1.24        |
+| max3_per_mm:seqlength100:notes35 |        5.3         |        3.6         |
+| max3_per_mm:seqlength100:notes50 |        6.04        |        2.8         |
+| max5                             | 8.671111111111111  |        2.36        |
+| max5:seqlength20                 | 9.113333333333333  | 2.2933333333333334 |
+| max5:seqlength20:notes25         |        6.72        |        3.2         |
+| max5:seqlength20:notes35         |        9.28        |        3.36        |
+| max5:seqlength20:notes50         |       11.34        |        0.32        |
+| max5:seqlength50                 |        8.44        | 2.473333333333333  |
+| max5:seqlength50:notes25         |        6.36        |        2.96        |
+| max5:seqlength50:notes35         |        8.74        |        1.98        |
+| max5:seqlength50:notes50         |       10.22        |        2.48        |
+| max5:seqlength100                |        8.46        | 2.3133333333333335 |
+| max5:seqlength100:notes25        |        6.28        |        3.82        |
+| max5:seqlength100:notes35        |        7.84        |        2.82        |
+| max5:seqlength100:notes50        |       11.26        |        0.3         |
+| max5_per_mm                      | 6.484444444444445  | 2.2977777777777777 |
+| max5_per_mm:seqlength20          | 7.126666666666667  | 2.3666666666666667 |
+| max5_per_mm:seqlength20:notes25  |        5.74        |        0.56        |
+| max5_per_mm:seqlength20:notes35  |        6.82        |        2.72        |
+| max5_per_mm:seqlength20:notes50  |        8.82        |        3.82        |
+| max5_per_mm:seqlength50          | 6.166666666666667  | 2.1066666666666665 |
+| max5_per_mm:seqlength50:notes25  |        5.02        |        1.26        |
+| max5_per_mm:seqlength50:notes35  |        6.96        |        1.02        |
+| max5_per_mm:seqlength50:notes50  |        6.52        |        4.04        |
+| max5_per_mm:seqlength100         |        6.16        |        2.42        |
+| max5_per_mm:seqlength100:notes25 |        4.4         |        2.44        |
+| max5_per_mm:seqlength100:notes35 |        5.94        |        2.28        |
+| max5_per_mm:seqlength100:notes50 |        8.14        |        2.54        |
++----------------------------------+--------------------+--------------------+

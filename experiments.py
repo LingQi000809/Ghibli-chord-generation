@@ -9,7 +9,7 @@ from prettytable import PrettyTable
 from rnn import generate_output
 
 # experiments to run
-maxnote_experiments = ["max5", "max5_per_mm"]
+maxnote_experiments = ["max3", "max3_per_mm", "max5", "max5_per_mm"]
 seq_len_experiments = [4, 8, 12]
 # generate 100 sequences for each type of experiment
 num_seqs = 100
@@ -236,10 +236,39 @@ def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True
     # =====
     #  RNN
     # =====
+    if rnn:
+        eval_file = os.path.join("evaluations", "rnn")
+        output_dir = "rnn"
+
+        # create table
+        rnn_table = PrettyTable(["Experiment", "Avg LCS", "Avg SSN"])
+        rnn_table.align["Experiment"] = "l" # Left align
+
+        # maxnote
+        for maxnote in maxnote_experiments:
+            output_maxnote_dir = os.path.join(output_dir, maxnote)
+            lcs = generate_lcs_evaluations(output_maxnote_dir, maxnote)
+            ssn = generate_ssn_evaluation(output_maxnote_dir, maxnote)
+            rnn_table.add_row([f"{maxnote}", lcs, ssn])
+            # n
+            for n in rnn_seqlength:
+                output_n_dir = os.path.join(output_maxnote_dir, f"seqlength{n}")
+                lcs = generate_lcs_evaluations(output_n_dir, maxnote)
+                ssn = generate_ssn_evaluation(output_n_dir, maxnote)
+                rnn_table.add_row([f"{maxnote}:seqlength{n}", lcs, ssn])
+                # seq_len
+                for seq_len in rnn_notelength:
+                    output_seqlen_dir = os.path.join(output_n_dir, f"notes{seq_len}")
+                    lcs = generate_lcs_evaluations(output_seqlen_dir, maxnote)
+                    ssn = generate_ssn_evaluation(output_seqlen_dir, maxnote)
+                    rnn_table.add_row([f"{maxnote}:seqlength{n}:notes{seq_len}", lcs, ssn])
+
+        with open(eval_file, "w") as ef:
+            ef.write(str(rnn_table))
 
 def main():
-    gen_outputs(baseline=False, ngrams=False, hmm=False)
-    gen_evaluations(baseline=True, ngrams=True, hmm=True)
+    # gen_outputs(baseline=False, ngrams=False, hmm=False)
+    gen_evaluations(baseline=False, ngrams=False, hmm=False, rnn=True)
 
 
 

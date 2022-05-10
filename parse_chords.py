@@ -306,15 +306,15 @@ def main(args):
     #             # write_midi_to_chords(midi_filepath, max_notes=3, chord_per_measure=True)
     #             # write_midi_to_chords(midi_filepath, max_notes=5)
     #             write_midi_to_chords(midi_filepath, chord_per_measure=True)
-    for corpus in ["max3", "max3_per_mm", "max5", "max5_per_mm", "maxNone", "maxNone_per_mm"]:
+    for corpus in ["max3", "max3_per_mm", "max5", "max5_per_mm"]:
         print(f"for {corpus}")
         _, chords = read_chord_dir(f"chords/{corpus}")
         # print(chords)
-        print(len(chords))
+        # print(len(chords))
         count = Counter(chords)
-        print(len(count))
+        # print(len(count))
         print(count)
-        # plt.hist(count.keys())
+        # plt.hist(chords, len(count))
         # plt.show()
     
 def dir_path(string):
