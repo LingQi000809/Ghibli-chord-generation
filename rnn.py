@@ -1,3 +1,5 @@
+# Consulted for generating text with an RNN: https://machinelearningmastery.com/text-generation-lstm-recurrent-neural-networks-python-keras/ 
+
 import parse_chords 
 import numpy
 import os
@@ -11,6 +13,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 
 def create_datasets(notes, char_to_int, seq_length):
+    """Generate sequences of a given seq_length to use as input for the RNN model"""
     dataX = []
     dataY = []
     n_chars = len(notes)
@@ -23,6 +26,9 @@ def create_datasets(notes, char_to_int, seq_length):
     return dataX, dataY
 
 def get_vocab(l):
+    """Extracts each character used in the dataset, adding a space in between each chord 
+    so the model can distinguish different chords. The resulting set "vocab" will likely contain
+    the 12 tones used in Western music. """
     vocab = set()
     total = []
     for s in l:
@@ -35,6 +41,8 @@ def get_vocab(l):
     return vocab,total
 
 def raw_to_output(l):
+    """Takes the raw character output of the model (after it has been mapped to notes)
+    and converts it to a format that can be evaluated"""
     result = []
     for s in l:
         if s == "<e>":
@@ -48,6 +56,8 @@ def raw_to_output(l):
     return result 
 
 def get_last_chord_of_seed(l):
+    """Grabs the last complete sequence of notes in a seed.
+    This will be used as the starting chord in the generated sequence"""
     result = []
     index = len(l)-1
     con = True 
@@ -64,34 +74,52 @@ def get_last_chord_of_seed(l):
     return result
 
 def generate_output(seq_length, notelength, filename, dir, output_file):
+    """Creates datasets from the data in dir and loads the weights for a model (filename) that 
+    has already been trained. Then predicts notelength notes based on a randomly generated seed
+    The resulting output is stored in output_file"""
+
+    # Read the chord dir and extract the chord sequences 
     _, text = parse_chords.read_chord_dir(dir)
+
+    # Get the total characters/vocab for the data
     vocab, total = get_vocab(text)
     vocab = sorted(list(vocab))
     n_vocab = len(vocab)
+
+    # These dictionaries convert data to and from RNN-compatible integers 
     char_to_int = dict((c, i) for i, c in enumerate(vocab))
     int_to_char = dict((i, c) for i, c in enumerate(vocab))
 
+    # Create datasets 
     dataX, dataY = create_datasets(total, char_to_int, seq_length)
     n_patterns = len(dataX)
+
+    # Shape into input format 
     X = numpy.reshape(dataX, (n_patterns, seq_length, 1))
     X = X/float(n_vocab)
     y = np_utils.to_categorical(dataY)
+
+    # Create RNN 
     model = Sequential()
+    # First LSTM
     model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
     model.add(Dropout(0.2))
+    # Second LSTM
     model.add(LSTM(256))
     model.add(Dropout(0.2))
     model.add(Dense(y.shape[1], activation='softmax'))
-
+    
+    # Load weights of a model that has already called model.fit()
     model.load_weights(filename)
     model.compile(loss='categorical_crossentropy', optimizer='adam')
 
+    # Generate seed 
     start = numpy.random.randint(0, len(dataX)-1)
     pattern = dataX[start]
     seed = [int_to_char[value] for value in pattern]
     last_chord = get_last_chord_of_seed(seed)
     
-    # generate characters
+    # Generate predicted characters from seed 
     chords = []
     for i in last_chord:
         chords.append(i)
