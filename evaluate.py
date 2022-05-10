@@ -170,8 +170,11 @@ def main():
 
     #creating_root_files("max3")
     
+    print(generate_lcs_evaluations("baseline/seq8/", "max3_per_mm"))
+
+
     #print("checking chords: ", same_sequence_number(list3, "max5"))
-    print("length of lcs is ", lcs(list1, list2))
+    #print("length of lcs is ", lcs(list1, list2))
     #print("length of lcs is ", lcs("OldSite:GeeksforGeeks.org", "NewSite:GeeksQuiz.com"))
 
 main()
