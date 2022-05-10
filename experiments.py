@@ -238,13 +238,9 @@ def gen_evaluations(baseline: bool = True, ngrams: bool = True, hmm: bool = True
     # =====
 
 def main():
-<<<<<<< HEAD
-    gen_outputs(baseline=False, ngrams=False, hmm=False, rnn=True)
-=======
     gen_outputs(baseline=False, ngrams=False, hmm=False)
     gen_evaluations(baseline=True, ngrams=True, hmm=True)
 
->>>>>>> 49d084a0e067a4f0ec8c55bf5065846035af4203
 
 
 if __name__ == "__main__":
