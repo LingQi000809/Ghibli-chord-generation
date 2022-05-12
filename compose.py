@@ -1,6 +1,8 @@
+import argparse
 import random
 
 from music21 import *
+from parse_chords import read_chord_file
 
 def compose(seq: list, show_score: bool = True):
     """ transcribe the chord sequence from strings into music21 Stream.
@@ -29,3 +31,19 @@ def compose(seq: list, show_score: bool = True):
         composition.append(c)
     if show_score:
         composition.show()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "file",
+        type=str,
+        help="filepath of a text file containing chord strings",
+    )
+    args = parser.parse_args()
+
+    with open(args.file, 'r') as f:
+        _, seq = read_chord_file(f)
+        compose(seq)
+    
